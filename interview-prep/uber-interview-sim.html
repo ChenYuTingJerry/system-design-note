@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uber System Design — Mock Interview Simulator</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2e;
+    --surface-light: #252940;
+    --border: #333750;
+    --text: #e2e4eb;
+    --text-muted: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-dim: #3d5299;
+    --green: #4caf50;
+    --green-bg: rgba(76, 175, 80, 0.12);
+    --yellow: #ffc107;
+    --yellow-bg: rgba(255, 193, 7, 0.12);
+    --red: #f44336;
+    --red-bg: rgba(244, 67, 54, 0.12);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    --radius: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Welcome Screen */
+  #screen-welcome {
+    text-align: center;
+    padding-top: 15vh;
+  }
+  #screen-welcome h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  #screen-welcome .subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+  }
+  #screen-welcome .stage-list {
+    text-align: left;
+    display: inline-block;
+    margin: 20px 0 32px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 2;
+  }
+  #screen-welcome .stage-list span {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 12px 32px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #5a7ae6; }
+  .btn-secondary {
+    background: var(--surface-light);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+
+  /* Progress Bar */
+  .progress-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+  }
+  .progress-segment {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-light);
+    border-radius: 3px;
+    transition: background 0.3s;
+  }
+  .progress-segment.completed { background: var(--accent-dim); }
+  .progress-segment.current { background: var(--accent); }
+
+  /* Stage Header */
+  .stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .stage-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .timer {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    padding: 4px 12px;
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .timer.warning {
+    color: var(--red);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Interviewer Prompt */
+  .prompt-box {
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+  .prompt-label {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  /* Textarea */
+  .answer-area {
+    width: 100%;
+    min-height: 220px;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .answer-area:focus { border-color: var(--accent); }
+  .answer-area:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .submit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+  }
+  .submit-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Feedback Panel */
+  .feedback {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+  .feedback h3 {
+    font-size: 1rem;
+    margin-bottom: 14px;
+    color: var(--text-muted);
+  }
+  .feedback-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+  }
+  .feedback-row.green { background: var(--green-bg); }
+  .feedback-row.yellow { background: var(--yellow-bg); }
+  .feedback-row.red { background: var(--red-bg); }
+  .feedback-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+  .feedback-dot.green { background: var(--green); }
+  .feedback-dot.yellow { background: var(--yellow); }
+  .feedback-dot.red { background: var(--red); }
+  .feedback-topic { font-weight: 600; }
+  .feedback-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .feedback-next {
+    margin-top: 20px;
+    text-align: right;
+  }
+
+  /* Results Screen */
+  .results-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .results-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .level-badge {
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 16px 0;
+  }
+  .level-badge.staff { background: var(--green); color: #000; }
+  .level-badge.senior { background: #66bb6a; color: #000; }
+  .level-badge.mid { background: var(--yellow); color: #000; }
+  .level-badge.needs-work { background: var(--red); color: #fff; }
+
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  .results-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .results-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--surface-light);
+    cursor: pointer;
+  }
+  .results-table tr:hover td { background: var(--surface); }
+  .result-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .result-detail {
+    display: none;
+    padding: 8px 14px 14px 40px;
+    font-size: 0.88rem;
+  }
+  .result-detail.open { display: table-row; }
+  .result-detail td {
+    padding-top: 0;
+    cursor: default;
+  }
+  .result-detail td:hover { background: transparent; }
+  .criteria-checklist {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .criteria-checklist h3 {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+  }
+  .criteria-checklist li {
+    list-style: none;
+    padding: 4px 0;
+    font-size: 0.9rem;
+  }
+  .criteria-checklist li::before {
+    margin-right: 8px;
+  }
+  .criteria-checklist li.pass::before { content: "\2713"; color: var(--green); }
+  .criteria-checklist li.fail::before { content: "\2717"; color: var(--red); }
+
+  .results-actions { text-align: center; margin-top: 24px; }
+
+  /* Thresholds info */
+  .thresholds {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container { padding: 16px 12px; }
+    #screen-welcome { padding-top: 8vh; }
+    #screen-welcome h1 { font-size: 1.5rem; }
+    .answer-area { min-height: 160px; }
+    .stage-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .timer { align-self: flex-end; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Welcome Screen -->
+  <div id="screen-welcome" class="screen active">
+    <h1>Uber System Design</h1>
+    <p class="subtitle">Mock Interview Simulator &mdash; 8 stages, ~45 min</p>
+    <div class="stage-list">
+      1. <span>Requirements & Scoping</span> (5 min)<br>
+      2. <span>Core Entities & API Design</span> (5 min)<br>
+      3. <span>High-Level Architecture</span> (5 min)<br>
+      4. <span>Real-Time Location at Scale</span> (5 min)<br>
+      5. <span>Driver Assignment Consistency</span> (5 min)<br>
+      6. <span>Fault Tolerance</span> (5 min)<br>
+      7. <span>CDN Judgment Call</span> (3 min)<br>
+      8. <span>Surge Pricing</span> (5 min)
+    </div>
+    <br>
+    <button class="btn btn-primary" onclick="startInterview()">Start Interview</button>
+  </div>
+
+  <!-- Stage Screen -->
+  <div id="screen-stage" class="screen">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="stage-header">
+      <div class="stage-label" id="stage-label"></div>
+      <div class="timer" id="timer">5:00</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">Interviewer</div>
+      <div id="prompt-text"></div>
+    </div>
+    <textarea class="answer-area" id="answer-area" placeholder="Type your answer here..."></textarea>
+    <div class="submit-row">
+      <span class="submit-hint" id="submit-hint">Timer auto-submits when it reaches 0:00</span>
+      <button class="btn btn-primary" id="btn-submit" onclick="submitAnswer()">Submit Answer</button>
+    </div>
+    <div class="feedback" id="feedback" style="display:none">
+      <h3>Feedback</h3>
+      <div id="feedback-rows"></div>
+      <div class="feedback-next">
+        <button class="btn btn-primary" id="btn-next" onclick="nextStage()">Next Stage</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="screen-results" class="screen">
+    <div class="results-header">
+      <h1>Interview Complete</h1>
+      <div id="level-badge" class="level-badge"></div>
+    </div>
+    <div class="thresholds">
+      Staff+: 7-8 stages green/yellow + surge race condition &nbsp;|&nbsp;
+      Senior: 5-6 &nbsp;|&nbsp;
+      Mid: 3-4 &nbsp;|&nbsp;
+      Needs Work: &lt;3
+    </div>
+    <table class="results-table" id="results-table">
+      <thead><tr><th style="width:30px"></th><th>Stage</th><th style="width:80px">Rating</th></tr></thead>
+      <tbody id="results-body"></tbody>
+    </table>
+    <div class="criteria-checklist" id="staff-criteria">
+      <h3>Staff+ Readiness</h3>
+      <ul id="criteria-list"></ul>
+    </div>
+    <div class="results-actions">
+      <button class="btn btn-secondary" onclick="restart()">Restart Interview</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STAGES = [
+  {
+    title: "Requirements & Scoping",
+    shortTitle: "Requirements",
+    timeSeconds: 300,
+    prompt: "Let's design Uber's ride-sharing system. How would you scope this problem? What are the core functional and non-functional requirements?",
+    criteria: [
+      {
+        topic: "Functional Requirements",
+        hint: "Fare estimation, ride requesting, driver matching, accept/decline, navigation",
+        green: ["fare estimation", "ride request", "driver matching", "accept", "decline", "navigation"],
+        yellow: ["pickup", "dropoff", "driver", "rider", "match"]
+      },
+      {
+        topic: "Non-Functional Requirements",
+        hint: "Low latency matching, strong consistency (no double-booking), high throughput",
+        green: ["latency", "consistency", "throughput", "fault tolerance", "availability"],
+        yellow: ["fast", "reliable", "scalable", "real-time", "performance"]
+      },
+      {
+        topic: "Scoping (What's Out of Scope)",
+        hint: "Explicitly call out what you won't cover: ratings, payments, scheduled rides",
+        green: ["out of scope", "below the line", "ratings", "payment", "scheduled"],
+        yellow: ["scope", "focus", "prioritize", "not include", "won't cover"]
+      }
+    ]
+  },
+  {
+    title: "Core Entities & API Design",
+    shortTitle: "Entities & API",
+    timeSeconds: 300,
+    prompt: "Good. What are the core data entities, and what API endpoints would you design?",
+    criteria: [
+      {
+        topic: "Core Entities",
+        hint: "Rider, Driver, Fare, and Ride as separate entities (Fare \u2260 Ride)",
+        green: ["rider", "driver", "fare", "ride"],
+        yellow: ["user", "trip", "entity", "location", "model"]
+      },
+      {
+        topic: "API Endpoints",
+        hint: "POST /fare, POST /rides, POST /drivers/location, PATCH /rides/:id",
+        green: ["post /fare", "post /rides", "/drivers/location", "patch /rides"],
+        yellow: ["rest", "endpoint", "api", "post", "patch"]
+      },
+      {
+        topic: "Security Considerations",
+        hint: "JWT for identity, no client-supplied userId or fare amounts in request body",
+        green: ["jwt", "authorization header", "no client-supplied", "token", "fareid"],
+        yellow: ["auth", "security", "tamper", "identity", "trust"]
+      }
+    ]
+  },
+  {
+    title: "High-Level Architecture",
+    shortTitle: "High-Level Design",
+    timeSeconds: 300,
+    prompt: "Walk me through the high-level system architecture. What services and infrastructure do you need?",
+    criteria: [
+      {
+        topic: "Core Services",
+        hint: "API Gateway, Ride Service, Location Service, Matching Worker",
+        green: ["api gateway", "ride service", "location service", "matching worker"],
+        yellow: ["service", "microservice", "gateway", "worker"]
+      },
+      {
+        topic: "Data Infrastructure",
+        hint: "Kafka for async messaging, Redis for geospatial + locks, PostgreSQL for persistent data",
+        green: ["kafka", "redis", "postgresql", "postgres"],
+        yellow: ["message queue", "database", "cache", "queue", "broker"]
+      },
+      {
+        topic: "Notification Layer",
+        hint: "Notification Service pushing to APNs/FCM for driver offers and rider updates",
+        green: ["notification service", "push notification", "apns", "fcm"],
+        yellow: ["notification", "push", "notify", "alert", "websocket"]
+      }
+    ]
+  },
+  {
+    title: "Real-Time Location at Scale",
+    shortTitle: "Location at Scale",
+    timeSeconds: 300,
+    prompt: "You mentioned location tracking. With 10 million drivers pinging every 5 seconds, that's 2 million writes per second. How do you handle that?",
+    criteria: [
+      {
+        topic: "Redis Geospatial Commands",
+        hint: "GEOADD to store, GEOSEARCH to query — geohash encodes 2D into 1D sorted set",
+        green: ["geoadd", "geosearch", "geohash", "sorted set"],
+        yellow: ["redis", "geospatial", "geo", "spatial"]
+      },
+      {
+        topic: "In-Memory Rationale",
+        hint: "2M writes/sec needs in-memory — no disk I/O. PostgreSQL WAL + MVCC can't keep up",
+        green: ["in-memory", "no disk", "2 million", "writes per second", "wal", "mvcc"],
+        yellow: ["memory", "write-heavy", "scale", "fast writes"]
+      },
+      {
+        topic: "Optimizations",
+        hint: "Adaptive ping intervals (parked=30s, moving=5s, approaching=2s) + stale driver cleanup",
+        green: ["adaptive ping", "stale driver", "cleanup", "ping interval"],
+        yellow: ["optimize", "reduce", "interval", "timeout", "adaptive"]
+      }
+    ]
+  },
+  {
+    title: "Driver Assignment Consistency",
+    shortTitle: "Driver Consistency",
+    timeSeconds: 300,
+    prompt: "Multiple matching workers consuming from Kafka could both find the same nearest driver. How do you prevent double-booking?",
+    criteria: [
+      {
+        topic: "Distributed Lock Mechanism",
+        hint: "Redis SET NX — atomic compare-and-set that only succeeds for one caller",
+        green: ["set nx", "distributed lock", "atomic", "compare-and-set"],
+        yellow: ["lock", "mutex", "exclusive", "synchroniz"]
+      },
+      {
+        topic: "TTL / Self-Healing",
+        hint: "EX 10 means if worker crashes, lock auto-expires in 10s — no manual cleanup",
+        green: ["ttl", "expiry", "auto-release", "self-healing", "ex 10"],
+        yellow: ["timeout", "expire", "release", "cleanup"]
+      },
+      {
+        topic: "Why In-Memory Locks Fail",
+        hint: "Each worker process has its own memory — Worker A's lock is invisible to Worker B",
+        green: ["in-memory lock", "cross-worker", "own memory", "each worker"],
+        yellow: ["race condition", "concurrent", "double", "conflict", "two workers"]
+      }
+    ]
+  },
+  {
+    title: "Fault Tolerance",
+    shortTitle: "Fault Tolerance",
+    timeSeconds: 300,
+    prompt: "What happens when a matching worker crashes mid-match? How do you prevent lost ride requests?",
+    criteria: [
+      {
+        topic: "Kafka Durability",
+        hint: "Offset committed only after successful match — crash = redelivery to another consumer",
+        green: ["kafka", "offset commit", "consumer group", "rebalancing", "redelivery"],
+        yellow: ["message queue", "durable", "queue", "replay"]
+      },
+      {
+        topic: "Durable Workflows (Temporal)",
+        hint: "Temporal persists workflow state — driver timeout chain (A\u2192B\u2192C) survives crashes",
+        green: ["temporal", "durable workflow", "workflow", "driver timeout chain"],
+        yellow: ["retry", "state machine", "orchestration", "saga", "timeout chain"]
+      },
+      {
+        topic: "Geo-Sharding for Scale",
+        hint: "Each region (US-East, EU-West, APAC) has own Kafka + Redis + workers — no cross-region coordination",
+        green: ["geo-shard", "geo shard", "region", "partition by geography", "us-east"],
+        yellow: ["shard", "partition", "regional", "geographic"]
+      }
+    ]
+  },
+  {
+    title: "CDN Judgment Call",
+    shortTitle: "CDN Judgment",
+    timeSeconds: 180,
+    prompt: "Would you add a CDN to this architecture? Where would it help, and where would it not?",
+    criteria: [
+      {
+        topic: "CDN Not for Core Flows",
+        hint: "Every core API call is dynamic + personalized — can't cache 'find nearest driver' at an edge",
+        green: ["not needed for core", "dynamic", "personalized", "real-time data", "can't cache"],
+        yellow: ["no cdn", "not cacheable", "dynamic data"]
+      },
+      {
+        topic: "Valid CDN Use Cases",
+        hint: "Map tiles, static app assets, profile images, and surge heatmap tiles",
+        green: ["map tiles", "static assets", "heatmap tiles", "surge heatmap"],
+        yellow: ["static", "tiles", "images", "assets"]
+      },
+      {
+        topic: "Surge Heatmap CDN Insight",
+        hint: "Pre-rendered image tiles, refreshed every 60s, identical for all riders \u2192 S3 + CloudFront",
+        green: ["pre-rendered", "refreshed every 60", "identical for all", "cloudfront", "s3"],
+        yellow: ["heatmap", "render", "cache", "same for everyone"]
+      }
+    ]
+  },
+  {
+    title: "Surge Pricing",
+    shortTitle: "Surge Pricing",
+    timeSeconds: 300,
+    prompt: "Interesting. Now let\u2019s talk about surge pricing. How would you design the surge pricing system, and how do you ensure a rider always pays the price they were shown?",
+    criteria: [
+      {
+        topic: "Zone Division",
+        hint: "Geohash precision 5 (~5km cells) or H3 hexagonal grid (Uber's actual approach)",
+        green: ["geohash", "h3", "hexagonal", "zone", "precision"],
+        yellow: ["area", "region", "grid", "cell", "geographic"]
+      },
+      {
+        topic: "Supply/Demand Calculation",
+        hint: "Background job every 30-60s: ratio = pendingRequests / availableDrivers \u2192 multiplier tiers",
+        green: ["supply", "demand", "ratio", "background job", "multiplier"],
+        yellow: ["calculate", "count", "drivers", "requests", "imbalance"]
+      },
+      {
+        topic: "Price Consistency (Snapshot)",
+        hint: "Snapshot multiplier onto Fare entity at POST /fare — POST /rides reads DB, never recalculates",
+        green: ["snapshot", "fareid", "never recalculate", "read from database", "snapshotted"],
+        yellow: ["lock price", "honor price", "shown price", "original price"]
+      },
+      {
+        topic: "Fare Expiry / Race Condition",
+        hint: "T=0 rider sees 1.0x, T=15 surge hits 2.0x, T=20 rider confirms \u2014 solution: expires_at + 409",
+        green: ["expiry", "expiresat", "409", "stale price", "race condition"],
+        yellow: ["expire", "timeout", "window", "stale", "conflict"]
+      }
+    ]
+  }
+];
+
+// ---- State ----
+const state = {
+  currentStage: 0,
+  results: [],
+  timerInterval: null,
+  remaining: 0
+};
+
+// ---- DOM Refs ----
+const $ = id => document.getElementById(id);
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+}
+
+// ---- Welcome ----
+function startInterview() {
+  state.currentStage = 0;
+  state.results = [];
+  showScreen('stage');
+  loadStage(0);
+}
+
+function restart() {
+  showScreen('welcome');
+}
+
+// ---- Stage ----
+function loadStage(index) {
+  const stage = STAGES[index];
+  state.currentStage = index;
+
+  // Progress bar
+  const bar = $('progress-bar');
+  bar.innerHTML = '';
+  for (let i = 0; i < STAGES.length; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-segment';
+    if (i < index) seg.classList.add('completed');
+    if (i === index) seg.classList.add('current');
+    bar.appendChild(seg);
+  }
+
+  // Header
+  $('stage-label').textContent = `Stage ${index + 1} of ${STAGES.length} \u2014 ${stage.title}`;
+
+  // Prompt
+  $('prompt-text').textContent = stage.prompt;
+
+  // Textarea
+  const area = $('answer-area');
+  area.value = '';
+  area.disabled = false;
+  area.focus();
+
+  // Buttons
+  $('btn-submit').style.display = '';
+  $('submit-hint').style.display = '';
+  $('feedback').style.display = 'none';
+
+  // Timer
+  startTimer(stage.timeSeconds);
+}
+
+function startTimer(seconds) {
+  stopTimer();
+  state.remaining = seconds;
+  updateTimerDisplay();
+  const timerEl = $('timer');
+  timerEl.classList.remove('warning');
+
+  state.timerInterval = setInterval(() => {
+    state.remaining--;
+    updateTimerDisplay();
+    if (state.remaining <= 60) timerEl.classList.add('warning');
+    if (state.remaining <= 0) {
+      stopTimer();
+      submitAnswer();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(Math.max(0, state.remaining) / 60);
+  const s = Math.max(0, state.remaining) % 60;
+  $('timer').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ---- Scoring ----
+function scoreTopic(text, criteria) {
+  const lower = text.toLowerCase();
+  const greenHits = criteria.green.filter(kw => lower.includes(kw.toLowerCase()));
+  const yellowHits = criteria.yellow.filter(kw => lower.includes(kw.toLowerCase()));
+
+  if (greenHits.length >= 2) return 'green';
+  if (greenHits.length >= 1 || yellowHits.length >= 2) return 'yellow';
+  return 'red';
+}
+
+function scoreStage(text, stage) {
+  const topicScores = stage.criteria.map(c => ({
+    topic: c.topic,
+    hint: c.hint,
+    rating: scoreTopic(text, c)
+  }));
+
+  const greens = topicScores.filter(t => t.rating === 'green').length;
+  const reds = topicScores.filter(t => t.rating === 'red').length;
+  const total = topicScores.length;
+
+  let overall;
+  if (reds === 0 && greens >= Math.ceil(total / 2)) overall = 'green';
+  else if (greens + (total - greens - reds) > reds) overall = 'yellow';
+  else overall = 'red';
+
+  return { topicScores, overall };
+}
+
+// ---- Submit ----
+function submitAnswer() {
+  stopTimer();
+
+  const text = $('answer-area').value;
+  const stage = STAGES[state.currentStage];
+  const result = scoreStage(text, stage);
+  result.stageIndex = state.currentStage;
+  result.answer = text;
+  state.results.push(result);
+
+  // Disable input
+  $('answer-area').disabled = true;
+  $('btn-submit').style.display = 'none';
+  $('submit-hint').style.display = 'none';
+
+  // Show feedback
+  const rows = $('feedback-rows');
+  rows.innerHTML = '';
+  result.topicScores.forEach(ts => {
+    const row = document.createElement('div');
+    row.className = `feedback-row ${ts.rating}`;
+    row.innerHTML = `
+      <div class="feedback-dot ${ts.rating}"></div>
+      <div>
+        <div class="feedback-topic">${ts.topic}</div>
+        <div class="feedback-hint">${ts.hint}</div>
+      </div>`;
+    rows.appendChild(row);
+  });
+
+  const isLast = state.currentStage === STAGES.length - 1;
+  $('btn-next').textContent = isLast ? 'See Results' : 'Next Stage \u2192';
+  $('feedback').style.display = '';
+}
+
+function nextStage() {
+  if (state.currentStage >= STAGES.length - 1) {
+    showResults();
+  } else {
+    showScreen('stage');
+    loadStage(state.currentStage + 1);
+  }
+}
+
+// ---- Results ----
+function assessLevel(results) {
+  const passed = results.filter(r => r.overall !== 'red').length;
+  const surgeResult = results.find(r => r.stageIndex === 7);
+  const surgeConsistency = surgeResult
+    ? surgeResult.topicScores.find(t => t.topic.includes('Price Consistency'))
+    : null;
+  const surgeRace = surgeResult
+    ? surgeResult.topicScores.find(t => t.topic.includes('Race Condition'))
+    : null;
+  const hasSurgeDepth = (surgeConsistency && surgeConsistency.rating !== 'red')
+    && (surgeRace && surgeRace.rating !== 'red');
+
+  if (passed >= 7 && hasSurgeDepth) return { level: 'Staff+', cls: 'staff' };
+  if (passed >= 5) return { level: 'Senior', cls: 'senior' };
+  if (passed >= 3) return { level: 'Mid-Level', cls: 'mid' };
+  return { level: 'Needs Work', cls: 'needs-work' };
+}
+
+function showResults() {
+  showScreen('results');
+
+  const assessment = assessLevel(state.results);
+  const badge = $('level-badge');
+  badge.textContent = assessment.level;
+  badge.className = `level-badge ${assessment.cls}`;
+
+  // Table
+  const tbody = $('results-body');
+  tbody.innerHTML = '';
+  state.results.forEach((r, i) => {
+    const stage = STAGES[r.stageIndex];
+    // Main row
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="result-color" style="background:var(--${r.overall})"></span></td>
+      <td>${r.stageIndex + 1}. ${stage.shortTitle}</td>
+      <td style="text-transform:capitalize">${r.overall}</td>`;
+    tr.style.cursor = 'pointer';
+
+    // Detail row
+    const detail = document.createElement('tr');
+    detail.className = 'result-detail';
+    const detailHtml = r.topicScores.map(ts =>
+      `<span class="feedback-dot ${ts.rating}" style="display:inline-block;width:8px;height:8px;margin-right:6px;vertical-align:middle"></span>${ts.topic}`
+    ).join('<br>');
+    detail.innerHTML = `<td></td><td colspan="2" style="font-size:0.88rem;color:var(--text-muted);padding:4px 14px 14px">${detailHtml}</td>`;
+
+    tr.addEventListener('click', () => {
+      detail.style.display = detail.style.display === 'table-row' ? 'none' : 'table-row';
+    });
+
+    tbody.appendChild(tr);
+    tbody.appendChild(detail);
+  });
+
+  // Staff+ criteria
+  const passed = state.results.filter(r => r.overall !== 'red').length;
+  const surgeResult = state.results.find(r => r.stageIndex === 7);
+  const surgeConsistency = surgeResult
+    ? surgeResult.topicScores.find(t => t.topic.includes('Price Consistency'))
+    : null;
+  const surgeRace = surgeResult
+    ? surgeResult.topicScores.find(t => t.topic.includes('Race Condition'))
+    : null;
+
+  const criteriaList = $('criteria-list');
+  const items = [
+    { pass: passed >= 6, text: `6+ stages with green or yellow (you got ${passed})` },
+    { pass: surgeConsistency && surgeConsistency.rating !== 'red', text: 'Surge pricing price consistency explanation' },
+    { pass: surgeRace && surgeRace.rating !== 'red', text: 'Race condition between estimation and confirmation' }
+  ];
+  criteriaList.innerHTML = items.map(
+    it => `<li class="${it.pass ? 'pass' : 'fail'}">${it.text}</li>`
+  ).join('');
+}
+</script>
+</body>
+</html>
