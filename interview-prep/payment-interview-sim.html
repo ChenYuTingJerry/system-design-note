@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment System Design — Mock Interview Simulator</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2e;
+    --surface-light: #252940;
+    --border: #333750;
+    --text: #e2e4eb;
+    --text-muted: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-dim: #3d5299;
+    --green: #4caf50;
+    --green-bg: rgba(76, 175, 80, 0.12);
+    --yellow: #ffc107;
+    --yellow-bg: rgba(255, 193, 7, 0.12);
+    --red: #f44336;
+    --red-bg: rgba(244, 67, 54, 0.12);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    --radius: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Welcome Screen */
+  #screen-welcome {
+    text-align: center;
+    padding-top: 10vh;
+  }
+  #screen-welcome h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  #screen-welcome .subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+  }
+  #screen-welcome .stage-list {
+    text-align: left;
+    display: inline-block;
+    margin: 20px 0 32px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 2;
+  }
+  #screen-welcome .stage-list span {
+    color: var(--text);
+    font-weight: 500;
+  }
+  #screen-welcome .browser-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 12px 32px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) { background: #5a7ae6; }
+  .btn-secondary {
+    background: var(--surface-light);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--border); }
+  .btn-mic {
+    background: var(--surface-light);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-mic:hover:not(:disabled) { background: var(--border); }
+  .btn-mic.recording {
+    background: rgba(244, 67, 54, 0.15);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .mic-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+  }
+  .btn-mic.recording .mic-dot {
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+  }
+  .progress-segment {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-light);
+    border-radius: 3px;
+    transition: background 0.3s;
+  }
+  .progress-segment.completed { background: var(--accent-dim); }
+  .progress-segment.current { background: var(--accent); }
+
+  /* Stage Header */
+  .stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .stage-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .timer {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    padding: 4px 12px;
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .timer.warning {
+    color: var(--red);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Interviewer Prompt */
+  .prompt-box {
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+  .prompt-label {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  /* Textarea */
+  .answer-area {
+    width: 100%;
+    min-height: 220px;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .answer-area:focus { border-color: var(--accent); }
+  .answer-area:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .answer-area.recording {
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.1);
+  }
+
+  .submit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .submit-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .submit-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* Feedback Panel */
+  .feedback {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+  .feedback h3 {
+    font-size: 1rem;
+    margin-bottom: 14px;
+    color: var(--text-muted);
+  }
+  .feedback-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+  }
+  .feedback-row.green { background: var(--green-bg); }
+  .feedback-row.yellow { background: var(--yellow-bg); }
+  .feedback-row.red { background: var(--red-bg); }
+  .feedback-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+  .feedback-dot.green { background: var(--green); }
+  .feedback-dot.yellow { background: var(--yellow); }
+  .feedback-dot.red { background: var(--red); }
+  .feedback-topic { font-weight: 600; }
+  .feedback-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .feedback-tip {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+  .feedback-tip strong { color: var(--text); }
+  .feedback-next {
+    margin-top: 20px;
+    text-align: right;
+  }
+
+  /* Results Screen */
+  .results-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .results-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .level-badge {
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 16px 0;
+  }
+  .level-badge.staff { background: var(--green); color: #000; }
+  .level-badge.senior { background: #66bb6a; color: #000; }
+  .level-badge.mid { background: var(--yellow); color: #000; }
+  .level-badge.needs-work { background: var(--red); color: #fff; }
+
+  .encouragement {
+    max-width: 600px;
+    margin: 0 auto 24px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .score-summary {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .score-pill {
+    background: var(--surface);
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-pill .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .score-pill .count {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  .results-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .results-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--surface-light);
+    cursor: pointer;
+  }
+  .results-table tr:hover td { background: var(--surface); }
+  .result-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .result-detail { display: none; }
+  .result-detail.open { display: table-row; }
+
+  .improve-box {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .improve-box h3 {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+  }
+  .improve-box ol {
+    list-style: none;
+    counter-reset: improve-counter;
+  }
+  .improve-box li {
+    counter-increment: improve-counter;
+    padding: 8px 0 8px 32px;
+    position: relative;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--surface-light);
+  }
+  .improve-box li:last-child { border-bottom: none; }
+  .improve-box li::before {
+    content: counter(improve-counter);
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 22px;
+  }
+  .improve-box .improve-hint {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-top: 2px;
+  }
+
+  .criteria-checklist {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .criteria-checklist h3 {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+  }
+  .criteria-checklist li {
+    list-style: none;
+    padding: 4px 0;
+    font-size: 0.9rem;
+  }
+  .criteria-checklist li::before {
+    margin-right: 8px;
+  }
+  .criteria-checklist li.pass::before { content: "\2713"; color: var(--green); }
+  .criteria-checklist li.fail::before { content: "\2717"; color: var(--red); }
+
+  .results-actions { text-align: center; margin-top: 24px; }
+
+  .thresholds {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container { padding: 16px 12px; }
+    #screen-welcome { padding-top: 6vh; }
+    #screen-welcome h1 { font-size: 1.5rem; }
+    .answer-area { min-height: 160px; }
+    .stage-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .timer { align-self: flex-end; }
+    .submit-row { flex-direction: column; align-items: stretch; }
+    .submit-actions { justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Welcome Screen -->
+  <div id="screen-welcome" class="screen active">
+    <h1>Payment System Design</h1>
+    <p class="subtitle">Stripe-Style Mock Interview &mdash; 9 stages, ~53 min</p>
+    <div class="stage-list">
+      1. <span>Requirements</span> (5 min)<br>
+      2. <span>Entities &amp; API</span> (5 min)<br>
+      3. <span>Payment Flow</span> (5 min)<br>
+      4. <span>Exactly-Once Processing</span> (7 min)<br>
+      5. <span>Ledger Design</span> (7 min)<br>
+      6. <span>Reconciliation</span> (7 min)<br>
+      7. <span>Security</span> (5 min)<br>
+      8. <span>Burst Handling</span> (7 min)<br>
+      9. <span>DLQ Design</span> (5 min)
+    </div>
+    <br>
+    <button class="btn btn-primary" onclick="startInterview()">Start Interview</button>
+    <p class="browser-note" id="browser-note"></p>
+  </div>
+
+  <!-- Stage Screen -->
+  <div id="screen-stage" class="screen">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="stage-header">
+      <div class="stage-label" id="stage-label"></div>
+      <div class="timer" id="timer">5:00</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">Interviewer</div>
+      <div id="prompt-text"></div>
+    </div>
+    <textarea class="answer-area" id="answer-area" placeholder="Type your answer, or click 'Start Speaking' to use your microphone..."></textarea>
+    <div class="submit-row">
+      <span class="submit-hint" id="submit-hint">Timer auto-submits when it reaches 0:00</span>
+      <div class="submit-actions">
+        <button class="btn btn-mic" id="btn-mic" onclick="toggleMic()">
+          <span class="mic-dot"></span><span id="mic-label">Start Speaking</span>
+        </button>
+        <button class="btn btn-primary" id="btn-submit" onclick="submitAnswer()">Submit Answer</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback" style="display:none">
+      <h3>Feedback</h3>
+      <div id="feedback-rows"></div>
+      <div class="feedback-tip" id="feedback-tip"></div>
+      <div class="feedback-next">
+        <button class="btn btn-primary" id="btn-next" onclick="nextStage()">Next Stage</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="screen-results" class="screen">
+    <div class="results-header">
+      <h1>Interview Complete</h1>
+      <div id="level-badge" class="level-badge"></div>
+    </div>
+    <p class="encouragement" id="encouragement"></p>
+    <div class="score-summary" id="score-summary"></div>
+    <div class="thresholds">
+      Staff+: 8-9 green/yellow + idempotency, reconciliation, defense-in-depth all covered &nbsp;|&nbsp;
+      Senior: 6-7 &nbsp;|&nbsp;
+      Mid: 4-5 &nbsp;|&nbsp;
+      Needs Work: &lt;4
+    </div>
+    <table class="results-table" id="results-table">
+      <thead><tr><th style="width:30px"></th><th>Stage</th><th style="width:80px">Rating</th></tr></thead>
+      <tbody id="results-body"></tbody>
+    </table>
+    <div class="improve-box" id="improve-box">
+      <h3>Top Areas to Improve</h3>
+      <ol id="improve-list"></ol>
+    </div>
+    <div class="criteria-checklist" id="staff-criteria">
+      <h3>Staff+ Readiness Signals</h3>
+      <ul id="criteria-list"></ul>
+    </div>
+    <div class="results-actions">
+      <button class="btn btn-secondary" onclick="restart()">Restart Interview</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STAGES = [
+  {
+    title: "Requirements & Scoping",
+    shortTitle: "Requirements",
+    timeSeconds: 300,
+    prompt: "Let's design a payment processing system like Stripe. Where would you like to start?",
+    tip: "Always state non-functional requirements proactively for payment systems. Exactly-once processing and financial integrity are not assumed \u2014 they must be called out.",
+    criteria: [
+      {
+        topic: "Functional Requirements",
+        hint: "Merchant initiates payment, user pays with card, merchant views payment status",
+        green: ["merchant", "card", "payment status", "charge", "initiate", "webhook"],
+        yellow: ["user", "pay", "transaction", "process payment"]
+      },
+      {
+        topic: "Non-Functional Requirements",
+        hint: "Exactly-once processing, durability, financial integrity, security",
+        green: ["exactly-once", "exactly once", "idempoten", "durability", "financial integrity", "no double", "consistency"],
+        yellow: ["consistent", "secure", "reliable", "no loss", "accurate"]
+      },
+      {
+        topic: "Scale Target",
+        hint: "10,000 TPS at peak load",
+        green: ["10,000 tps", "10000 tps", "10k tps", "10,000 transactions", "tps"],
+        yellow: ["scale", "throughput", "peak", "high traffic", "load"]
+      },
+      {
+        topic: "Out-of-Scope Decisions",
+        hint: "Refunds, subscriptions, saved payment methods, payouts \u2014 explicitly scoped out",
+        green: ["out of scope", "below the line", "refund", "subscription", "saved payment"],
+        yellow: ["scope", "won't cover", "not include", "skip", "ignore"]
+      }
+    ]
+  },
+  {
+    title: "Core Entities & API Design",
+    shortTitle: "Entities & API",
+    timeSeconds: 300,
+    prompt: "Good. Walk me through your core entities and API design.",
+    tip: "PaymentIntent vs Payment is the key distinction. The intent represents the merchant's business goal; the payment represents one execution attempt. This separation gives you a clean retry boundary.",
+    criteria: [
+      {
+        topic: "Core Entities",
+        hint: "Merchant, Customer, PaymentIntent, Payment, PaymentMethod (tokenized), LedgerEntry",
+        green: ["paymentintent", "payment intent", "ledgerentry", "ledger entry", "paymentmethod", "payment method"],
+        yellow: ["merchant", "customer", "payment", "entity"]
+      },
+      {
+        topic: "PaymentIntent vs Payment Separation",
+        hint: "PaymentIntent = merchant's request; Payment = one execution attempt. Multiple Payments per Intent for retries.",
+        green: ["intent", "attempt", "retry", "separate", "multiple payment", "stripe model"],
+        yellow: ["lifecycle", "status", "execution"]
+      },
+      {
+        topic: "API Endpoints",
+        hint: "POST /payment-intents, GET /payment-intents/:id, POST /payment-intents/:id/confirm \u2192 202, outbound webhook",
+        green: ["/payment-intents", "/confirm", "202", "webhook", "post", "get"],
+        yellow: ["endpoint", "rest", "api", "url"]
+      },
+      {
+        topic: "Tokenization Security",
+        hint: "Raw card data never touches your servers; client submits directly to PCI-compliant vault, your API receives only a token",
+        green: ["token", "tokeniz", "vault", "pci", "never touches", "client-side"],
+        yellow: ["secure", "sensitive", "encrypt", "card data"]
+      }
+    ]
+  },
+  {
+    title: "Payment Flow",
+    shortTitle: "Payment Flow",
+    timeSeconds: 300,
+    prompt: "Walk me through exactly what happens when a user clicks 'Pay Now'. Be specific about each step.",
+    tip: "The single most important framing: steps 4\u20138 of the flow are outside your control. The bank, the card network, and the PSP all run on their own clock. Your system must handle slow, missing, and duplicate responses gracefully.",
+    criteria: [
+      {
+        topic: "Client-Side Tokenization",
+        hint: "Card details submitted directly from browser to vault, returns token \u2014 your servers never see card numbers",
+        green: ["client-side", "directly to vault", "browser", "token", "vault"],
+        yellow: ["tokeniz", "card data", "pci"]
+      },
+      {
+        topic: "Async Nature",
+        hint: "PSP \u2192 card network \u2192 issuing bank, response comes back via webhook (could be ms or seconds)",
+        green: ["async", "webhook", "psp", "card network", "issuing bank", "later"],
+        yellow: ["external", "callback", "respond", "wait"]
+      },
+      {
+        topic: "202 Accepted Response",
+        hint: "Service returns 202 immediately after creating PENDING record \u2014 doesn't block on PSP",
+        green: ["202", "pending", "accepted", "immediately", "doesn't block", "released"],
+        yellow: ["non-blocking", "fast response", "queue"]
+      },
+      {
+        topic: "Outside-Your-Control Insight",
+        hint: "Bank can be slow, PSP can time out, webhook can fail to deliver \u2014 you must handle all three",
+        green: ["outside", "control", "time out", "fail to deliver", "unreliable", "slow"],
+        yellow: ["external dependency", "network failure", "third party"]
+      }
+    ]
+  },
+  {
+    title: "Exactly-Once Processing",
+    shortTitle: "Exactly-Once",
+    timeSeconds: 420,
+    prompt: "Your Payment Service sends a charge request to the PSP. The network times out \u2014 you don't know if it went through. How do you handle this safely?",
+    tip: "Idempotency keys must be deterministic (e.g., based on payment_id), never random per retry. The PSP guarantees that the same key returns the same result, which is what makes retries provably safe. This is also what makes DLQ retries safe later.",
+    criteria: [
+      {
+        topic: "Idempotency Keys at PSP",
+        hint: "Send a deterministic idempotency key (e.g., payment-{id}) on every PSP call \u2014 PSP dedupes",
+        green: ["idempotency", "idempoten", "deterministic", "deduplicat", "same key"],
+        yellow: ["unique key", "request id", "dedupe", "retry safe"]
+      },
+      {
+        topic: "API-Level Idempotency",
+        hint: "Your own API must dedupe too \u2014 unique constraint on (merchant_id, idempotency_key) at DB level",
+        green: ["api-level", "api level", "unique constraint", "merchant", "your api", "db level", "database constraint"],
+        yellow: ["constraint", "primary key", "unique"]
+      },
+      {
+        topic: "Redis Atomic Check-and-Set",
+        hint: "SETEX / SET NX with TTL as a fast-path dedupe before hitting the DB",
+        green: ["redis", "atomic", "set nx", "setex", "ttl", "check-and-set", "check and set"],
+        yellow: ["cache", "in-memory", "fast path", "lookup"]
+      },
+      {
+        topic: "Retry Safety Connection",
+        hint: "Idempotency keys are what make all retries (network, DLQ, reconciliation) safe by construction",
+        green: ["safe retry", "safe by", "dlq", "reconcili", "all retries", "by design"],
+        yellow: ["retry", "safe", "guarantee"]
+      }
+    ]
+  },
+  {
+    title: "Durability & Ledger Design",
+    shortTitle: "Ledger",
+    timeSeconds: 420,
+    prompt: "How do you ensure no financial data is ever lost? How do you model money movement in your system?",
+    tip: "Append-only + double-entry + balance-as-derived is the canonical financial data model. It is event sourcing applied to money. The reason it matters: every historical state is recoverable, audits are free, and there is no hot row contention on popular accounts.",
+    criteria: [
+      {
+        topic: "Append-Only Immutable Ledger",
+        hint: "Ledger entries are inserted, never UPDATEd or DELETEd. Corrections are new compensating entries.",
+        green: ["append-only", "append only", "immutable", "never update", "never delete", "event sourc"],
+        yellow: ["insert only", "history", "audit log", "log"]
+      },
+      {
+        topic: "Double-Entry Bookkeeping",
+        hint: "Every transaction has two sides: DEBIT one account, CREDIT another. Sum of debits = sum of credits.",
+        green: ["double-entry", "double entry", "debit", "credit", "two sides", "balance"],
+        yellow: ["bookkeeping", "accounting", "transaction"]
+      },
+      {
+        topic: "Atomic Insert of Both Entries",
+        hint: "Both DEBIT and CREDIT inserted in a single DB transaction \u2014 either both land or neither does",
+        green: ["atomic", "single transaction", "both", "db transaction", "atomically"],
+        yellow: ["transaction", "rollback", "consistent"]
+      },
+      {
+        topic: "Balance as Derived Value",
+        hint: "Never store balance as a mutable column \u2014 SUM the ledger. Use a materialized view for dashboard reads.",
+        green: ["derived", "sum", "materialized", "never stored", "no hot row", "contention"],
+        yellow: ["calculate", "compute", "aggregate", "view"]
+      }
+    ]
+  },
+  {
+    title: "Financial Integrity & Reconciliation",
+    shortTitle: "Reconciliation",
+    timeSeconds: 420,
+    prompt: "PSP webhooks can fail or arrive late. How do you guarantee your system stays consistent with external payment networks over time?",
+    tip: "DLQ catches failures you saw. Reconciliation catches failures you didn't. They are complementary safety nets, not redundant. State the distinction explicitly \u2014 it signals staff+ thinking about eventual consistency with external systems.",
+    criteria: [
+      {
+        topic: "Payment State Machine",
+        hint: "Valid transitions only (PENDING \u2192 PROCESSING \u2192 SUCCESS/FAILED), terminal states are SUCCESS and CANCELLED",
+        green: ["state machine", "valid transition", "terminal", "pending", "processing"],
+        yellow: ["status", "lifecycle", "states", "transition"]
+      },
+      {
+        topic: "Pessimistic Lock on Transitions",
+        hint: "SELECT FOR UPDATE serializes concurrent webhooks trying to transition the same payment",
+        green: ["select for update", "for update", "pessimistic", "lock", "serialize"],
+        yellow: ["transaction lock", "row lock", "concurrent"]
+      },
+      {
+        topic: "Reconciliation Job",
+        hint: "Hourly job compares internal DB vs PSP records. Handles missed webhooks, ghost payments, and amount mismatches.",
+        green: ["reconcili", "compare", "hourly", "psp record", "missed webhook", "ghost"],
+        yellow: ["batch job", "audit", "sync", "compare"]
+      },
+      {
+        topic: "DLQ vs Reconciliation Distinction",
+        hint: "DLQ = individual failures, minute latency. Reconciliation = systemic drift, hour latency. Complementary, not redundant.",
+        green: ["dlq", "complementary", "different", "individual", "systemic", "both"],
+        yellow: ["dead letter", "queue", "fallback", "safety net"]
+      }
+    ]
+  },
+  {
+    title: "Security \u2014 Defense in Depth",
+    shortTitle: "Security",
+    timeSeconds: 300,
+    prompt: "Walk me through your security model for handling sensitive payment data.",
+    tip: "Defense in depth means each layer assumes the previous one can fail. State this philosophy explicitly. Tokenization is layer 1, but mention envelope encryption (DEK + KEK) for any metadata you do store.",
+    criteria: [
+      {
+        topic: "Client-Side Tokenization & PCI Scope",
+        hint: "Card data never reaches your servers; PCI scope is isolated to the vault provider",
+        green: ["tokeniz", "pci", "scope", "never reaches", "vault", "client-side"],
+        yellow: ["token", "card data", "compliance"]
+      },
+      {
+        topic: "Envelope Encryption at Rest",
+        hint: "Per-record DEK encrypted by KEK in AWS KMS / HashiCorp Vault \u2014 KEK never on disk",
+        green: ["envelope", "dek", "kek", "kms", "key encryption key", "data encryption key"],
+        yellow: ["encrypt at rest", "encryption", "key management", "rotate"]
+      },
+      {
+        topic: "TLS Everywhere",
+        hint: "TLS 1.2+ on every internal hop, mTLS where possible, network segmentation for PCI subnet",
+        green: ["tls", "mtls", "in transit", "https", "network segment"],
+        yellow: ["transport", "ssl", "encrypt", "internal"]
+      },
+      {
+        topic: "Velocity Checks / Fraud",
+        hint: "Per-customer velocity limits in Redis (e.g., > 10 attempts/hour blocked, > $10k flagged)",
+        green: ["velocity", "fraud", "rate", "redis", "attempts per", "threshold"],
+        yellow: ["rate limit", "abuse", "block", "suspicious"]
+      },
+      {
+        topic: "Defense-in-Depth Philosophy",
+        hint: "Each layer assumes the previous one can fail \u2014 state this explicitly",
+        green: ["defense in depth", "defense-in-depth", "each layer", "layered", "previous can fail", "assume"],
+        yellow: ["multiple layers", "fallback", "redundant security"]
+      }
+    ]
+  },
+  {
+    title: "High-Concurrency Burst Handling",
+    shortTitle: "Burst Handling",
+    timeSeconds: 420,
+    prompt: "It's Black Friday. 100,000 payment requests hit your system simultaneously. Walk me through what breaks and how you handle it.",
+    tip: "The PSP rate limit is the hardest problem in burst handling \u2014 not the DB, not your service. Stripe's default is 100 req/s. Multiple PSP accounts + a fallback PSP (Adyen) is what staff+ engineers reach for. Removing any one mitigation layer collapses the system.",
+    criteria: [
+      {
+        topic: "Multi-Layer Failure Identification",
+        hint: "API gateway \u2192 thread pool \u2192 DB connections \u2192 PSP rate limit \u2192 ledger contention \u2014 each layer needs a different mitigation",
+        green: ["multiple layer", "api gateway", "connection pool", "thread pool", "rate limit", "ledger contention"],
+        yellow: ["bottleneck", "scale out", "saturate", "exhaust"]
+      },
+      {
+        topic: "Async Decoupling via Kafka",
+        hint: "202 Accepted \u2192 Kafka \u2192 controlled consumption. Converts thundering herd into a stream.",
+        green: ["kafka", "async", "202", "decouple", "stream", "queue"],
+        yellow: ["message queue", "non-blocking", "buffer"]
+      },
+      {
+        topic: "PSP Rate Limit Strategy",
+        hint: "Token bucket at 90% of PSP limit + multiple PSP accounts via consistent hashing",
+        green: ["psp rate", "token bucket", "rate limiter", "multiple psp", "consistent hash"],
+        yellow: ["throttle", "limit", "shape traffic"]
+      },
+      {
+        topic: "Fallback PSP",
+        hint: "Failover from Stripe to Adyen on rate limit or outage \u2014 single PSP is a SPOF",
+        green: ["fallback", "adyen", "failover", "secondary psp", "alternate psp", "spof"],
+        yellow: ["backup", "alternative", "redundant"]
+      },
+      {
+        topic: "DB Connection Pooling + Sharding",
+        hint: "PgBouncer caps DB connections; shard by merchant_id so no single DB takes all writes",
+        green: ["pgbouncer", "connection pool", "shard", "merchant_id"],
+        yellow: ["pooling", "partition", "scale db"]
+      },
+      {
+        topic: "Virtual Waiting Room",
+        hint: "Excess users get a queue position page (Ticketmaster-style) instead of a 500",
+        green: ["waiting room", "queue position", "ticketmaster", "virtual queue"],
+        yellow: ["queue", "wait", "admit"]
+      }
+    ]
+  },
+  {
+    title: "DLQ Design",
+    shortTitle: "DLQ Design",
+    timeSeconds: 300,
+    prompt: "What happens when a step in your payment pipeline fails? How do you make sure nothing is lost?",
+    tip: "Three DLQ insertion points, age-based retry strategy, and \u2014 most importantly \u2014 connect DLQ retry safety to idempotency keys. Without idempotency keys, a DLQ retry is a loaded gun.",
+    criteria: [
+      {
+        topic: "Three DLQ Insertion Points",
+        hint: "PSP submission failure, internal webhook processing failure, merchant webhook delivery failure",
+        green: ["three", "psp submission", "webhook processing", "merchant webhook", "three points"],
+        yellow: ["multiple", "different points", "various failures"]
+      },
+      {
+        topic: "Retry with Exponential Backoff",
+        hint: "Try N times with [1, 2, 4, 8, 16] second backoff before publishing to DLQ",
+        green: ["exponential", "backoff", "retry", "1 2 4", "exponential backoff"],
+        yellow: ["retries", "delay", "wait", "attempts"]
+      },
+      {
+        topic: "Age-Based DLQ Processor",
+        hint: "< 1 hour: retry immediately. < 24 hours: delayed retry. > 24 hours: manual review + ops alert.",
+        green: ["age", "1 hour", "24 hour", "manual review", "escalat", "delayed retry"],
+        yellow: ["older", "stale", "alert", "ops"]
+      },
+      {
+        topic: "Idempotency Makes DLQ Safe",
+        hint: "DLQ retries reuse the original idempotency key \u2014 PSP dedupes \u2014 retries are safe by design",
+        green: ["idempotency", "same key", "psp dedupe", "safe by", "loaded gun", "dangerous without"],
+        yellow: ["safe", "no double", "retry safe"]
+      },
+      {
+        topic: "DLQ vs Reconciliation Complementary",
+        hint: "DLQ = minutes / individual events. Reconciliation = hours / systemic. Complementary safety nets.",
+        green: ["complementary", "different layer", "reconcili", "both needed", "minute", "hour"],
+        yellow: ["safety net", "fallback", "two layer"]
+      }
+    ]
+  }
+];
+
+// ---- State ----
+const state = {
+  currentStage: 0,
+  results: [],
+  timerInterval: null,
+  remaining: 0,
+  recognition: null,
+  isRecording: false,
+  baseTranscript: ""
+};
+
+// ---- DOM Refs ----
+const $ = id => document.getElementById(id);
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+}
+
+// ---- Speech Recognition ----
+function initSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    $('btn-mic').disabled = true;
+    $('mic-label').textContent = 'Speech N/A';
+    $('browser-note').textContent = 'Speech recognition is not supported in this browser. Use Chrome or Edge for voice input. Typing still works.';
+    return;
+  }
+  $('browser-note').textContent = 'Voice input works best in Chrome or Edge.';
+
+  const recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    let finalText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalText += transcript + ' ';
+      } else {
+        interim += transcript;
+      }
+    }
+    if (finalText) {
+      state.baseTranscript += finalText;
+    }
+    $('answer-area').value = (state.baseTranscript + interim).trim();
+  };
+
+  recognition.onerror = (e) => {
+    console.warn('Speech recognition error:', e.error);
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      alert('Microphone access denied. Please allow microphone permissions and try again.');
+      stopMic();
+    }
+  };
+
+  recognition.onend = () => {
+    // Auto-restart while user wants to keep recording (handles short silences)
+    if (state.isRecording) {
+      try { recognition.start(); } catch (_) {}
+    }
+  };
+
+  state.recognition = recognition;
+}
+
+function toggleMic() {
+  if (!state.recognition) return;
+  if (state.isRecording) stopMic();
+  else startMic();
+}
+
+function startMic() {
+  if (!state.recognition) return;
+  state.isRecording = true;
+  state.baseTranscript = $('answer-area').value ? $('answer-area').value + ' ' : '';
+  try { state.recognition.start(); } catch (_) {}
+  $('btn-mic').classList.add('recording');
+  $('answer-area').classList.add('recording');
+  $('mic-label').textContent = 'Stop Speaking';
+}
+
+function stopMic() {
+  state.isRecording = false;
+  if (state.recognition) {
+    try { state.recognition.stop(); } catch (_) {}
+  }
+  $('btn-mic').classList.remove('recording');
+  $('answer-area').classList.remove('recording');
+  $('mic-label').textContent = 'Start Speaking';
+}
+
+// ---- Welcome ----
+function startInterview() {
+  state.currentStage = 0;
+  state.results = [];
+  showScreen('stage');
+  loadStage(0);
+}
+
+function restart() {
+  showScreen('welcome');
+}
+
+// ---- Stage ----
+function loadStage(index) {
+  const stage = STAGES[index];
+  state.currentStage = index;
+
+  // Progress bar
+  const bar = $('progress-bar');
+  bar.innerHTML = '';
+  for (let i = 0; i < STAGES.length; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-segment';
+    if (i < index) seg.classList.add('completed');
+    if (i === index) seg.classList.add('current');
+    bar.appendChild(seg);
+  }
+
+  // Header
+  $('stage-label').textContent = `Stage ${index + 1} of ${STAGES.length} \u2014 ${stage.title}`;
+
+  // Prompt
+  $('prompt-text').textContent = stage.prompt;
+
+  // Textarea
+  const area = $('answer-area');
+  area.value = '';
+  area.disabled = false;
+  state.baseTranscript = '';
+  area.focus();
+
+  // Buttons
+  $('btn-submit').style.display = '';
+  $('submit-hint').style.display = '';
+  $('btn-mic').style.display = '';
+  $('feedback').style.display = 'none';
+
+  // Timer
+  startTimer(stage.timeSeconds);
+}
+
+function startTimer(seconds) {
+  stopTimer();
+  state.remaining = seconds;
+  updateTimerDisplay();
+  const timerEl = $('timer');
+  timerEl.classList.remove('warning');
+
+  state.timerInterval = setInterval(() => {
+    state.remaining--;
+    updateTimerDisplay();
+    if (state.remaining <= 30) timerEl.classList.add('warning');
+    if (state.remaining <= 0) {
+      stopTimer();
+      submitAnswer();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(Math.max(0, state.remaining) / 60);
+  const s = Math.max(0, state.remaining) % 60;
+  $('timer').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ---- Scoring ----
+function scoreTopic(text, criteria) {
+  const lower = text.toLowerCase();
+  const greenHits = criteria.green.filter(kw => lower.includes(kw.toLowerCase()));
+  const yellowHits = criteria.yellow.filter(kw => lower.includes(kw.toLowerCase()));
+
+  if (greenHits.length >= 2) return 'green';
+  if (greenHits.length >= 1 || yellowHits.length >= 2) return 'yellow';
+  return 'red';
+}
+
+function scoreStage(text, stage) {
+  const topicScores = stage.criteria.map(c => ({
+    topic: c.topic,
+    hint: c.hint,
+    rating: scoreTopic(text, c)
+  }));
+
+  const greens = topicScores.filter(t => t.rating === 'green').length;
+  const reds = topicScores.filter(t => t.rating === 'red').length;
+  const total = topicScores.length;
+
+  let overall;
+  if (reds === 0 && greens >= Math.ceil(total / 2)) overall = 'green';
+  else if (greens + (total - greens - reds) > reds) overall = 'yellow';
+  else overall = 'red';
+
+  return { topicScores, overall };
+}
+
+// ---- Submit ----
+function submitAnswer() {
+  stopTimer();
+  if (state.isRecording) stopMic();
+
+  const text = $('answer-area').value;
+  const stage = STAGES[state.currentStage];
+  const result = scoreStage(text, stage);
+  result.stageIndex = state.currentStage;
+  result.answer = text;
+  state.results.push(result);
+
+  // Disable input
+  $('answer-area').disabled = true;
+  $('btn-submit').style.display = 'none';
+  $('submit-hint').style.display = 'none';
+  $('btn-mic').style.display = 'none';
+
+  // Show feedback
+  const rows = $('feedback-rows');
+  rows.innerHTML = '';
+  result.topicScores.forEach(ts => {
+    const row = document.createElement('div');
+    row.className = `feedback-row ${ts.rating}`;
+    const verdict = ts.rating === 'green' ? 'Covered well'
+                  : ts.rating === 'yellow' ? 'Mentioned, needs more depth'
+                  : 'Missed';
+    row.innerHTML = `
+      <div class="feedback-dot ${ts.rating}"></div>
+      <div>
+        <div class="feedback-topic">${ts.topic} \u2014 <span style="font-weight:400;color:var(--text-muted)">${verdict}</span></div>
+        <div class="feedback-hint">${ts.hint}</div>
+      </div>`;
+    rows.appendChild(row);
+  });
+
+  $('feedback-tip').innerHTML = `<strong>Tip:</strong> ${stage.tip}`;
+
+  const isLast = state.currentStage === STAGES.length - 1;
+  $('btn-next').textContent = isLast ? 'See Results' : 'Next Stage \u2192';
+  $('feedback').style.display = '';
+}
+
+function nextStage() {
+  if (state.currentStage >= STAGES.length - 1) {
+    showResults();
+  } else {
+    showScreen('stage');
+    loadStage(state.currentStage + 1);
+  }
+}
+
+// ---- Results ----
+function assessLevel(results) {
+  const passed = results.filter(r => r.overall !== 'red').length;
+
+  // Required staff+ depth signals
+  const idempotencyStage = results.find(r => r.stageIndex === 3);
+  const reconciliationStage = results.find(r => r.stageIndex === 5);
+  const securityStage = results.find(r => r.stageIndex === 6);
+
+  const idempotencyOk = idempotencyStage && idempotencyStage.overall !== 'red';
+  const reconciliationOk = reconciliationStage && reconciliationStage.overall !== 'red';
+  const securityOk = securityStage && securityStage.overall !== 'red';
+  const hasStaffDepth = idempotencyOk && reconciliationOk && securityOk;
+
+  if (passed >= 8 && hasStaffDepth) {
+    return {
+      level: 'Staff+',
+      cls: 'staff',
+      message: "Strong performance. You demonstrated the depth required for staff+: idempotency as a foundation, reconciliation as a safety net, and defense-in-depth security. You're ready for a Stripe-tier interview."
+    };
+  }
+  if (passed >= 6) {
+    return {
+      level: 'Senior',
+      cls: 'senior',
+      message: "Solid senior-level answer. You covered the key concepts. To reach staff+, focus on the depth signals: explicit idempotency-key flow, reconciliation as complement to DLQ, and layered security with envelope encryption."
+    };
+  }
+  if (passed >= 4) {
+    return {
+      level: 'Mid-Level',
+      cls: 'mid',
+      message: "You touched the right areas but missed several payment-specific concerns. Re-read the case study, focus on idempotency, the ledger model, and the async webhook flow \u2014 these are non-negotiable for payment systems."
+    };
+  }
+  return {
+    level: 'Needs Work',
+    cls: 'needs-work',
+    message: "Payment systems are one of the hardest distributed systems problems. Don't be discouraged \u2014 review the case study end-to-end, then re-attempt. Focus first on the four hard problems: idempotency, ledger, reconciliation, and security."
+  };
+}
+
+function buildImproveList(results) {
+  // Flatten all topics by rating, prefer reds first then yellows
+  const allTopics = [];
+  results.forEach(r => {
+    const stage = STAGES[r.stageIndex];
+    r.topicScores.forEach(ts => {
+      if (ts.rating === 'red' || ts.rating === 'yellow') {
+        allTopics.push({
+          stage: stage.shortTitle,
+          topic: ts.topic,
+          hint: ts.hint,
+          priority: ts.rating === 'red' ? 0 : 1
+        });
+      }
+    });
+  });
+  allTopics.sort((a, b) => a.priority - b.priority);
+  return allTopics.slice(0, 3);
+}
+
+function showResults() {
+  showScreen('results');
+
+  const assessment = assessLevel(state.results);
+  const badge = $('level-badge');
+  badge.textContent = assessment.level;
+  badge.className = `level-badge ${assessment.cls}`;
+  $('encouragement').textContent = assessment.message;
+
+  // Score summary pills
+  const greens = state.results.filter(r => r.overall === 'green').length;
+  const yellows = state.results.filter(r => r.overall === 'yellow').length;
+  const reds = state.results.filter(r => r.overall === 'red').length;
+  const summary = $('score-summary');
+  summary.innerHTML = `
+    <div class="score-pill"><span class="dot" style="background:var(--green)"></span><span class="count">${greens}</span> green</div>
+    <div class="score-pill"><span class="dot" style="background:var(--yellow)"></span><span class="count">${yellows}</span> yellow</div>
+    <div class="score-pill"><span class="dot" style="background:var(--red)"></span><span class="count">${reds}</span> red</div>
+  `;
+
+  // Table
+  const tbody = $('results-body');
+  tbody.innerHTML = '';
+  state.results.forEach((r) => {
+    const stage = STAGES[r.stageIndex];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="result-color" style="background:var(--${r.overall})"></span></td>
+      <td>${r.stageIndex + 1}. ${stage.shortTitle}</td>
+      <td style="text-transform:capitalize">${r.overall}</td>`;
+
+    const detail = document.createElement('tr');
+    detail.className = 'result-detail';
+    const detailHtml = r.topicScores.map(ts =>
+      `<span class="feedback-dot ${ts.rating}" style="display:inline-block;width:8px;height:8px;margin-right:6px;vertical-align:middle"></span>${ts.topic}`
+    ).join('<br>');
+    detail.innerHTML = `<td></td><td colspan="2" style="font-size:0.88rem;color:var(--text-muted);padding:4px 14px 14px">${detailHtml}</td>`;
+
+    tr.addEventListener('click', () => {
+      detail.style.display = detail.style.display === 'table-row' ? 'none' : 'table-row';
+    });
+
+    tbody.appendChild(tr);
+    tbody.appendChild(detail);
+  });
+
+  // Top areas to improve
+  const improvements = buildImproveList(state.results);
+  const improveList = $('improve-list');
+  if (improvements.length === 0) {
+    $('improve-box').style.display = 'none';
+  } else {
+    $('improve-box').style.display = '';
+    improveList.innerHTML = improvements.map(it =>
+      `<li><strong>${it.stage}: ${it.topic}</strong><div class="improve-hint">${it.hint}</div></li>`
+    ).join('');
+  }
+
+  // Staff+ readiness signals
+  const idempotencyStage = state.results.find(r => r.stageIndex === 3);
+  const reconciliationStage = state.results.find(r => r.stageIndex === 5);
+  const securityStage = state.results.find(r => r.stageIndex === 6);
+  const passed = state.results.filter(r => r.overall !== 'red').length;
+
+  const items = [
+    { pass: passed >= 8, text: `8+ stages green or yellow (you got ${passed} of ${STAGES.length})` },
+    { pass: idempotencyStage && idempotencyStage.overall !== 'red', text: 'Exactly-once processing via idempotency keys' },
+    { pass: reconciliationStage && reconciliationStage.overall !== 'red', text: 'Reconciliation as eventual-consistency guarantee' },
+    { pass: securityStage && securityStage.overall !== 'red', text: 'Defense-in-depth security model' }
+  ];
+  $('criteria-list').innerHTML = items.map(
+    it => `<li class="${it.pass ? 'pass' : 'fail'}">${it.text}</li>`
+  ).join('');
+}
+
+// ---- Init ----
+initSpeechRecognition();
+</script>
+</body>
+</html>
