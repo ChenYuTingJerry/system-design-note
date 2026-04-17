@@ -61,6 +61,31 @@
 
 ---
 
+### Non-Functional Requirements — Questions Asked
+
+#### Q4: What's the latency budget?
+- **My instinct:** ✅ Latency is the most important NFR for a rate limiter — it sits on the critical path of every API request
+- **Why it matters:** Latency budget directly determines architecture
+  - < 1 ms → in-memory only, local counters per node, sloppy consistency
+  - 1–5 ms → co-located Redis, single round trip (standard approach)
+  - 5–20 ms → remote Redis cluster, more complex algorithms possible
+  - > 20 ms → unacceptable for a hot-path gateway component
+- **Tail latency > average latency** at gateway scale: at 1M RPS, even p99.9 of 50ms = 1000 slow req/sec
+- **Follow-ups I should have asked:**
+  - Is the budget for the rate-limit check alone, or end-to-end gateway latency?
+  - p99 vs p99.9 vs p99.99 targets?
+  - What's the acceptable latency in degraded mode (backend down)?
+- **Decision for this session:**
+  - p99 < 5 ms (rate-limit check alone)
+  - p99.9 < 10 ms
+  - This is added latency on top of normal request processing
+- **Architectural implications this budget creates:**
+  - Strict global counting across regions probably too slow
+  - Need co-located cache (Redis in same AZ, or in-memory tier)
+  - May need to accept some over-shoot to meet latency
+
+---
+
 ### Functional Requirements — Still TODO
 - [ ] Behavior when limited (reject vs queue vs degrade)
 - [ ] Response format (status code, headers like `Retry-After`, `X-RateLimit-Remaining`)
@@ -98,11 +123,13 @@
 | "What's the granular granularity of a rule? It's it per user or per endpoints." | "What's the granularity of a rule? Is it per user, per endpoint, or a combination?" |
 | "What is the behavior when limited happened?" | "What's the expected behavior when a request is rate-limited?" |
 | "I have seen the behavior when the request is rare rate limited, is the server respond response this the HTTP status four two nine. alias too many requests." | "The behavior I've seen when a request is rate-limited is the server responds with HTTP 429 — also known as 'Too Many Requests'." |
+| "What is the latency we accept" | "What's the latency budget we need to meet?" |
 
 ---
 
 ## Speaking Tips
 - Status codes are spoken as digits: "four-twenty-nine" or "four-two-nine", never "four two nine". Same for 200, 500, etc.
+- **"budget"** is the standard interview term for NFR constraints: "latency budget", "error budget", "memory budget". Using it signals seniority.
 
 ---
 
