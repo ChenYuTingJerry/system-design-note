@@ -62,25 +62,21 @@
   - 1M RPS peak
 
 #### Q5: What's the latency budget?
-- **My instinct:** ✅ Latency is the most important NFR for a rate limiter — it sits on the critical path of every API request
-- **Why it matters:** Latency budget directly determines architecture
-  - < 1 ms → in-memory only, local counters per node, sloppy consistency
-  - 1–5 ms → co-located Redis, single round trip (standard approach)
-  - 5–20 ms → remote Redis cluster, more complex algorithms possible
-  - > 20 ms → unacceptable for a hot-path gateway component
-- **Tail latency > average latency** at gateway scale: at 1M RPS, even p99.9 of 50ms = 1000 slow req/sec
-- **Follow-ups I should have asked:**
-  - Is the budget for the rate-limit check alone, or end-to-end gateway latency?
-  - p99 vs p99.9 vs p99.99 targets?
-  - What's the acceptable latency in degraded mode (backend down)?
+- **My instinct:** ✅ Critical question — rate limiter is on the critical path of every API request
+- **Why it matters:** Latency budget directly shapes architecture
+  - < 1 ms → in-memory only, sloppy consistency
+  - 1–5 ms → co-located Redis, single round trip (standard)
+  - > 20 ms → unacceptable for a hot-path component
+- **Tail latency > average:** at 1M RPS, even p99.9 of 50ms = 1000 slow req/sec
 - **Decision for this session:**
   - p99 < 5 ms (rate-limit check alone)
   - p99.9 < 10 ms
-  - This is added latency on top of normal request processing
-- **Architectural implications this budget creates:**
-  - Strict global counting across regions probably too slow
-  - Need co-located cache (Redis in same AZ, or in-memory tier)
-  - May need to accept some over-shoot to meet latency
+  - This is added latency on top of normal processing
+- **Architectural implications:**
+  - No synchronous cross-region coordination
+  - Must use co-located cache (same-AZ Redis, or in-memory)
+  - May need to accept consistency trade-offs to stay fast
+- **Staff-level interview move:** "At 1M RPS, even p99.9 of 50ms = 1000 slow req/sec. That's why tail latency matters more than average for rate limiters."
 
 ---
 
