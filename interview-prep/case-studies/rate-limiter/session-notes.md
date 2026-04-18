@@ -50,7 +50,18 @@
 
 ### Non-Functional Requirements — Questions Asked
 
-#### Q4: What's the latency budget?
+#### Q4: What's the scale (DAU and peak RPS)?
+- **My instinct:** ✅ Good — scale is the right first NFR question, drives downstream decisions
+- **Why it matters:** Scale determines memory cost, sharding strategy, consistency model
+- **What to ask for (both numbers, not just one):**
+  - **DAU** (daily active users) → drives counter cardinality / storage
+  - **Peak RPS** → drives throughput / node count
+- **Improvement for next time:** Ask both together — "How many DAU, and what's the peak RPS?"
+- **Decision for this session:**
+  - 100M DAU
+  - 1M RPS peak
+
+#### Q5: What's the latency budget?
 - **My instinct:** ✅ Latency is the most important NFR for a rate limiter — it sits on the critical path of every API request
 - **Why it matters:** Latency budget directly determines architecture
   - < 1 ms → in-memory only, local counters per node, sloppy consistency
@@ -114,6 +125,7 @@
 | "Is the granularity per user or per API key or per endpoint. Or it's a combination? Like user and endpoint. Or per region for multi region deployments." | "What's the granularity — per user, per API key, per endpoint, or a combination? And do we need per-region granularity for multi-region deployments?" |
 | "Is the right diameter rules Is the rules of rate limiter fixed or configurable?" | "Are the rate limiter rules fixed or configurable?" |
 | "What is the behavior when requesters are limited." | "What's the expected behavior when a request is rate-limited?" |
+| (none — "How many users per day?" is natural) | ✅ |
 
 ---
 
