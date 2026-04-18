@@ -154,3 +154,30 @@
 
 ## Connections to My Stack
 - **Configurable rules with hot-reload** ≈ Argo Workflows `WorkflowTemplate` CRDs — declarative, versioned, controller watches for changes
+
+---
+
+## 🛑 Session Pause — 2026-04-18
+
+### Status
+- ✅ Step 1 (Clarify Requirements) — COMPLETE
+  - ✅ 1A Functional Requirements (Q1–Q3)
+  - ✅ 1B Non-Functional Requirements (Q4–Q6)
+- ⏳ Step 2 (Back-of-envelope Estimation) — NOT STARTED
+
+### Key decisions locked in
+- Configurable rules with hot-reload
+- Granularity: `(user_id, endpoint)` + IP fallback
+- Behavior: HTTP 429 + Retry-After headers
+- Scale: 100M DAU, 1M RPS peak
+- Latency: p99 < 5ms
+- Failure mode: fail-open default, per-rule override
+
+### To resume
+Say to Claude: "Continue rate limiter session from Step 2."
+
+### Open questions / items flagged for later
+- Multi-region (deferred from Q2)
+- Burst handling — not yet discussed
+- Control plane design for rule distribution — Step 3+
+- Security / auth bypass handling — not yet discussed
