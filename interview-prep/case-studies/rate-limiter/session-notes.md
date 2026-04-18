@@ -10,35 +10,28 @@
 
 ### Functional Requirements — Questions Asked
 
-#### Q1: Is the rate limiter based on configurable rules?
-- **My instinct:** ✅ Good question — probes the policy model
-- **Why it matters:** Fixed policy vs configurable rules → completely different design (configurable needs a control plane: rule storage, distribution, hot-reload, versioning)
-- **Follow-ups I should have asked:**
-  - Granularity of a rule? (per user / API key / IP / endpoint / tenant)
-  - What dimensions? (req/sec, bandwidth, concurrent connections, cost-weighted)
-  - How dynamic? (static config / hot-reload / real-time UI updates)
-  - Who defines them? (platform / service owners / customers)
+#### Q1: Are the rate limiter rules fixed or configurable?
+- **My instinct:** ✅ Good first question — probes the policy model
+- **Why it matters:** Fixed vs configurable changes the whole architecture. Configurable requires a control plane (storage, distribution, hot-reload).
 - **Decision for this session:**
-  - Configurable rules with hot-reload
-  - Granularity: per user + per endpoint
-  - Dimension: requests per second
-  - Tiered: free vs paid
+  - Configurable rules
+  - Hot-reload supported
+  - Platform team owns rule definitions
 
-#### Q2: What's the granularity of a rule?
-- **My instinct:** ✅ Right follow-up
-- **Why it matters:** Granularity determines counter cardinality → memory cost, hot-key risk, consistency model
-  - Per-user only: ~10M counters
-  - Per-user + endpoint: ~500M counters
-  - + region: billions
-- **Layers I missed:**
-  - **Per-IP** for unauthenticated traffic (login, public APIs)
-  - **Per-API-key** for B2B / programmatic access (different from user)
-  - **Global per-endpoint** as downstream circuit breaker
-- **Real gateways apply multiple limits in sequence** (per-IP AND per-user AND per-endpoint-global)
+#### Q2: What's the granularity of rate limiting?
+- **My instinct:** ✅ Strong — covered all main dimensions (user, API key, endpoint, combinations, region)
+- **Why it matters:** Granularity drives counter cardinality → memory cost, sharding strategy, hot-key risk
+- **The dimensions to know:**
+  - Per user — most common
+  - Per API key — for B2B / programmatic access
+  - Per IP — fallback for unauthenticated traffic
+  - Per endpoint — per-route limits
+  - Per region — for multi-region deployments
+  - Combinations (e.g., user × endpoint)
 - **Decision for this session:**
-  - Per-user + per-endpoint (primary)
-  - Per-IP (fallback for unauth)
-  - Global per-endpoint (circuit breaker)
+  - Primary: `(user_id, endpoint)`
+  - Fallback: `(ip_address, endpoint)` for unauthenticated requests
+  - Multi-region deferred to later
 
 #### Q3: What's the behavior when a request is rate-limited?
 - **My instinct:** ✅ Got the most common answer (HTTP 429)
@@ -124,6 +117,8 @@
 | "What is the behavior when limited happened?" | "What's the expected behavior when a request is rate-limited?" |
 | "I have seen the behavior when the request is rare rate limited, is the server respond response this the HTTP status four two nine. alias too many requests." | "The behavior I've seen when a request is rate-limited is the server responds with HTTP 429 — also known as 'Too Many Requests'." |
 | "What is the latency we accept" | "What's the latency budget we need to meet?" |
+| "Is the granularity per user or per API key or per endpoint. Or it's a combination? Like user and endpoint. Or per region for multi region deployments." | "What's the granularity — per user, per API key, per endpoint, or a combination? And do we need per-region granularity for multi-region deployments?" |
+| "Is the right diameter rules Is the rules of rate limiter fixed or configurable?" | "Are the rate limiter rules fixed or configurable?" |
 
 ---
 
