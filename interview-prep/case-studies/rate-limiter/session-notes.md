@@ -34,23 +34,17 @@
   - Multi-region deferred to later
 
 #### Q3: What's the behavior when a request is rate-limited?
-- **My instinct:** ✅ Got the most common answer (HTTP 429)
-- **Why it matters:** Product decision disguised as technical — affects client UX, retry behavior, and whether you need extra infra (queue, cache for degraded responses)
-- **The 4 main behaviors:**
-  1. **Reject (HTTP 429)** — most common, simple, pushes burden to client. Used by GitHub, Twitter, most public APIs.
-  2. **Queue / Wait** — server holds request until quota frees. Better UX but adds latency, eats memory, bad fit for HTTP.
-  3. **Degrade / Serve Cached** — return stale/partial response. Great for read-heavy user-facing (Uber surge cache, Netflix fallback). Needs cache layer.
-  4. **Shadow Mode** — log-only, no enforcement. Critical for safe rollout of new rules. Usually a per-rule feature flag.
-- **Critical headers to return on 429:**
-  - `Retry-After: 30`
-  - `X-RateLimit-Limit: 100`
-  - `X-RateLimit-Remaining: 0`
-  - `X-RateLimit-Reset: <unix_ts>`
-- **Staff-level point to make in interview:** "Behavior should be per-rule configurable — some reject, some degrade, some shadow. Always return informative headers so clients can do intelligent backoff."
+- **My instinct:** ✅ Standard follow-up after defining inputs — asks about client-facing behavior
+- **Why it matters:** This is a product decision. Affects client UX, retry patterns, and what infra you need (queue? cache?)
+- **The 4 common behaviors:**
+  1. **Reject with HTTP 429** — most common, simplest
+  2. **Queue & serve later** — better UX but adds latency, memory
+  3. **Degrade** (cached/partial response) — good for read-heavy user-facing APIs, needs cache
+  4. **Shadow mode** (log-only) — safe rollout of new rules
 - **Decision for this session:**
-  - Default: Reject with 429 + headers
-  - Support Shadow Mode as per-rule flag
-  - Queue/degrade deferred to Step 5 alternatives
+  - Reject with HTTP 429 (Too Many Requests)
+  - Return `Retry-After` header
+  - Also return `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` for smart client backoff
 
 ---
 
@@ -119,6 +113,7 @@
 | "What is the latency we accept" | "What's the latency budget we need to meet?" |
 | "Is the granularity per user or per API key or per endpoint. Or it's a combination? Like user and endpoint. Or per region for multi region deployments." | "What's the granularity — per user, per API key, per endpoint, or a combination? And do we need per-region granularity for multi-region deployments?" |
 | "Is the right diameter rules Is the rules of rate limiter fixed or configurable?" | "Are the rate limiter rules fixed or configurable?" |
+| "What is the behavior when requesters are limited." | "What's the expected behavior when a request is rate-limited?" |
 
 ---
 
