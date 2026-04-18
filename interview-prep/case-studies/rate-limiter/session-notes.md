@@ -78,6 +78,23 @@
   - May need to accept consistency trade-offs to stay fast
 - **Staff-level interview move:** "At 1M RPS, even p99.9 of 50ms = 1000 slow req/sec. That's why tail latency matters more than average for rate limiters."
 
+#### Q6: Fail-open or fail-closed when the backend store is down?
+- **My instinct:** 🎯 Staff-level signal — asking this unprompted shows you think about failure modes
+- **Why it matters:** Rate limiter is on the critical path. Its failure mode affects product availability and safety.
+- **The core trade-off:**
+
+| Mode | If rate limiter dies... | Pros | Cons |
+|---|---|---|---|
+| Fail-open | Allow all traffic | API stays available | Backend can be overwhelmed |
+| Fail-closed | Reject all traffic | Backend stays safe | Rate limiter outage = full API outage |
+
+- **Real-world pattern:** fail-open for general traffic (GitHub, Stripe), fail-closed for security-critical paths (login, payments)
+- **Stack connection:** Same as K8s admission webhooks — `failurePolicy: Ignore` (fail-open) vs `failurePolicy: Fail` (fail-closed)
+- **Decision for this session:**
+  - Default: fail-open
+  - Per-rule override: critical rules can fail-closed
+  - Availability SLO: 99.99% for rate-limit check
+
 ---
 
 ### Functional Requirements — Still TODO
@@ -122,12 +139,16 @@
 | "Is the right diameter rules Is the rules of rate limiter fixed or configurable?" | "Are the rate limiter rules fixed or configurable?" |
 | "What is the behavior when requesters are limited." | "What's the expected behavior when a request is rate-limited?" |
 | (none — "How many users per day?" is natural) | ✅ |
+| "Is the red limiter felt open or fell closed if it if it store if it is done. Or break," | "Is the rate limiter fail-open or fail-closed if the backend store goes down?" |
 
 ---
 
 ## Speaking Tips
 - Status codes are spoken as digits: "four-twenty-nine" or "four-two-nine", never "four two nine". Same for 200, 500, etc.
 - **"budget"** is the standard interview term for NFR constraints: "latency budget", "error budget", "memory budget". Using it signals seniority.
+- **fail-open** = allow traffic when system fails (prioritize availability)
+- **fail-closed** = block traffic when system fails (prioritize safety)
+- Universal pattern — networking, security, admission control
 
 ---
 
