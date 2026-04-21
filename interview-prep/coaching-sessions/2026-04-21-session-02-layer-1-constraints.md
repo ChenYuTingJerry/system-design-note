@@ -1,3 +1,4 @@
+
 # Session 2 — Decision Framework Layer 1: Constraints (17LIVE)
 
 **Date:** 2026-04-21
@@ -28,39 +29,39 @@ Both are needed. Session 2 targets the decision framework because it's the deepe
 3. **Tradeoffs** — what each alternative optimizes for and sacrifices
 4. **Counterfactuals** — what would have to change for me to pick a different alternative
 
-Order matters: can't articulate tradeoffs without alternatives, can't articulate counterfactuals without constraints. Build in order.
+Order matters: you can't articulate tradeoffs without alternatives, and you can't articulate counterfactuals without constraints. Build in order.
 
 ## Layer 1 — Five Constraints (17LIVE monolith→microservices migration)
 
 ### Constraint 1 — User scale and operational load
 
-> 700K DAU and 2M MAU on a platform reaching 50M registered users across 133 countries. The constraint bit hardest during peak Asia-evening windows. Any architectural decision that risked whole-system availability during peak was off the table, because an outage would trigger a global brand incident across 133 countries.
+> We had 700K DAU and 2M MAU on a platform with 50M registered users across 133 countries. This constraint had the most impact during peak Asia-evening windows. Any architectural decision that put whole-system availability at risk during those windows was off the table — an outage during peak would have been a global brand incident across 133 countries.
 
-**Key insight from shaping this constraint:** Senior engineers cite the impressive number (50M). Staff engineers cite the *operational* number that actually constrained architecture (700K DAU), then contextualize the larger numbers as reach/stakes. Citing only the impressive number is a credibility risk because interviewers will probe for concurrency and expose the gap.
+**Key insight from shaping this constraint:** Senior engineers cite the impressive number (50M). Staff engineers cite the operational number that actually constrained architecture (700K DAU), then use the larger number to show reach and stakes. Citing only the impressive number is a credibility risk — interviewers will probe for concurrency and expose the gap.
 
 ### Constraint 2 — Business / feature velocity
 
-> 17LIVE shipped to production weekly, with a continuous roadmap of engagement features. The constraint bit hardest during seasonal events, when feature timing was tied to revenue windows. Any architectural approach that paused or significantly slowed feature delivery was off the table, because missing the launch window for a seasonal feature meant losing the associated revenue — that revenue couldn't be recovered later.
+> 17LIVE shipped to production weekly, with a continuous roadmap of engagement features. This constraint had the most impact during seasonal events, when feature timing was directly tied to revenue windows. Any approach that paused or significantly slowed feature delivery was off the table — missing a seasonal launch window meant losing that revenue permanently. There was no way to recover it after the season ended.
 
-**Key insight:** The reason something is a *constraint* rather than a *preference* is usually the non-recoverability of the consequence. Revenue from a missed seasonal launch can't be recovered — the season is over. Name non-recoverability explicitly when describing constraints.
+**Key insight:** The reason something is a constraint rather than a preference is usually the non-recoverability of the consequence. Revenue from a missed seasonal launch can't be recovered — the season is over. Name non-recoverability explicitly when describing constraints.
 
 ### Constraint 3 — Team capacity
 
-> Two senior engineers and one junior engineer, running migration work in parallel with ongoing feature delivery. The constraint bit hardest because the team had to sustain both the migration and the feature roadmap simultaneously — there was no moment where one could pause for the other. Any architectural approach that required a dedicated rewrite team of 5–10 engineers was off the table, because leadership had approved the migration in principle but was unwilling to slow feature velocity enough to free up that many engineers from product teams.
+> We had two senior engineers and one junior engineer, running migration work in parallel with ongoing feature delivery. This constraint had the most impact because the team had to keep both tracks moving at the same time — there was no point when one could pause for the other. Any approach that required a dedicated rewrite team of five to ten engineers was off the table. Leadership had made a deliberate tradeoff — they chose to prioritize feature velocity over migration speed, which meant we couldn't pull that many engineers away from product teams.
 
 **Key insight:** Frame resource limits as leadership tradeoffs, not as obstacles. "Leadership made a deliberate tradeoff — they chose to prioritize feature velocity over migration speed" sounds Staff-level. "We didn't have enough people" sounds Senior-level.
 
 ### Constraint 4 — Existing technical foundation
 
-> The monolith was built on Go, MongoDB, etcd for configuration, GCP Pub/Sub for event messaging, and Redis for distributed caching. The constraint bit hardest in that we were migrating architecture, not stack — the infrastructure primitives were proven in production, but the service decomposition and service-to-service communication layer was missing. Any architectural approach that required replacing the data layer, the config store, or the event backbone was off the table, because those components were operationally stable and shared across every part of the monolith — replacing them would have been a second migration layered on top of the first.
+> The monolith was built on Go, MongoDB, etcd for configuration, GCP Pub/Sub for event messaging, and Redis for distributed caching. This constraint had the most impact in defining the scope of the migration — we were changing the architecture, not the stack. The infrastructure primitives were already production-proven. What was missing was the service decomposition layer and a clear service-to-service communication model. Any approach that required replacing the data layer, the config store, or the event backbone was off the table — those components were stable and shared across the entire monolith, so replacing them would have been a second migration on top of the first.
 
-**Key insight:** Staff engineers name what they kept and what they changed. The fact that the infrastructure primitives already existed is why strangler fig was feasible with a 3-person team. Constraint 3 and Constraint 4 connect — neither alone explains the architectural decision, but together they make it almost inevitable.
+**Key insight:** Staff engineers name what they kept and what they changed. The fact that the infrastructure primitives already existed is why strangler fig was feasible with a three-person team. Constraint 3 and Constraint 4 connect — neither alone explains the architectural decision, but together they make it almost inevitable.
 
 ### Constraint 5 — Organizational / SRE dependency
 
-> The SRE team owned the L7 infrastructure layer — service mesh, load balancing, and production networking. Any architectural approach that required a new service-to-service protocol could not be executed unilaterally by the platform team, because SRE had their own roadmap and gated new infrastructure adoption behind operational readiness. The unlock mechanism was delivering a working POC that demonstrated safety and operational readiness before SRE would commit to supporting gRPC in production.
+> The SRE team owned the L7 infrastructure layer — service mesh, load balancing, and production networking. This constraint had the most impact because any approach requiring a new service-to-service protocol couldn't be executed unilaterally by the platform team. SRE had their own roadmap and gated new infrastructure adoption behind operational readiness. The way to unlock their support was to deliver a working POC that demonstrated the approach was safe and operationally sound — only then would they commit to supporting gRPC in production.
 
-**Key insight:** Organizational dependencies disguised as technical ones are common. The real constraint wasn't "we had to use gRPC" — it was "we had to earn SRE's trust with a POC to adopt gRPC." Naming the stakeholder's incentive structure (SRE has own roadmap, gates adoption behind operational readiness) is Staff-level framing.
+**Key insight:** Organizational dependencies are often disguised as technical ones. The real constraint wasn't "we had to use gRPC" — it was "we had to earn SRE's trust with a POC to adopt gRPC." Naming the stakeholder's incentive structure (SRE has their own roadmap and gates adoption behind operational readiness) is Staff-level framing.
 
 ## Nine Verified Claims About the 17LIVE Work
 
@@ -75,8 +76,8 @@ The nine verified claims that anchor the story:
 5. Hexagonal architecture was my design.
 6. gRPC adoption across the microservices ecosystem was a result of my POC and advocacy.
 7. At the time, I believed taking on this architectural ownership was part of my Staff-engineer responsibility — not something extraordinary.
-8. Over three years, led migration from zero to production microservices running in parallel with the legacy monolith — serving 50M registered users across 133 countries throughout, with no user-facing regressions during my tenure. Decomposed two legacy components that had high fan-out — each used by many features, so decoupling produced broad architectural benefit. Established the rule that all new feature development would happen on the new architecture, which stopped the monolith from growing and created a migration flywheel. Migration was still actively decomposing legacy modules when I transitioned out.
-9. My team was the first to adopt hexagonal architecture in production. I introduced the pattern across all feature teams as the standard they would follow when migrating. I established the rule that all new feature development org-wide would use the new architecture — so by the time I transitioned out, every new feature across engineering was being built on the hexagonal pattern, even in teams still maintaining legacy monolith code.
+8. Over three years, led migration from zero to production microservices running in parallel with the legacy monolith — serving 50M registered users across 133 countries throughout the entire period, with no user-facing regressions during my tenure. Decomposed two legacy components that had high fan-out — each was used by many features, so decoupling produced broad architectural benefit. Established the rule that all new feature development would happen on the new architecture, which stopped the monolith from growing and created a migration flywheel. Migration was still actively decomposing legacy modules when I transitioned out.
+9. My team was the first to adopt hexagonal architecture in production. I introduced the pattern across all feature teams as the standard design pattern for all new development and migration work. I established the rule that all new feature development org-wide would use the new architecture — so by the time I transitioned out, every new feature across engineering was being built on the hexagonal pattern, even in teams still maintaining legacy monolith code.
 
 ## The Ownership Framing — Staff vs. Senior mental model
 
@@ -97,13 +98,13 @@ Opening phrase to internalize:
 
 Two overclaims were caught and corrected during this session before they made it into any interview material:
 
-**Overclaim 1 (corrected):** "Zero user-facing downtime across a multi-year program" → "No user-facing regressions during my tenure." I don't have documented SLO measurements for "zero downtime," but "no user-facing regressions" is observable in error rates and user complaints and defensible under interrogation.
+**Overclaim 1 (corrected):** "Zero user-facing downtime across a multi-year program" → "No user-facing regressions during my tenure." I don't have documented SLO measurements for "zero downtime," but "no user-facing regressions" is observable in error rates and user complaints and is defensible under interrogation.
 
 **Overclaim 2 (corrected):** "Migration was completed" → "Migration was still actively decomposing legacy modules when I transitioned out; microservices and monolith were running in parallel." Strangler fig programs typically outlast individual engineers. Acknowledging the parallel state is more accurate and shows I understood the pattern correctly.
 
-**Overclaim 3 (corrected):** "Components were blocking multiple feature teams" → "Components had high fan-out — each was used by many features, so decoupling produced broad architectural benefit." Different claim entirely. The honest version is about architectural coupling, not team blocking.
+**Overclaim 3 (corrected):** "Components were blocking multiple feature teams" → "Components had high fan-out — each was used by many features, so decoupling produced broad architectural benefit." These are different claims entirely. The honest version is about architectural coupling, not team blocking.
 
-**Lesson to carry forward:** Every reframing Claude offers me, I challenge. Every claim in my interview narrative, I verify. Interviewers at Adyen and Databricks are trained to probe for overclaiming, and the backpedal is the credibility hit — not the original claim. Better to get corrected ten times in coaching than once in front of a panel.
+**Lesson to carry forward:** Every reframing Claude offers, I challenge. Every claim in my interview narrative, I verify line by line. Interviewers at Adyen and Databricks are trained to probe for overclaiming, and the backpedal is the credibility hit — not the original claim. Better to get corrected ten times in coaching than once in front of a panel.
 
 ## Staff-level Filler Phrases Internalized This Session
 
@@ -134,5 +135,7 @@ Two overclaims were caught and corrected during this session before they made it
 
 - Session ran 90 minutes, covered Layer 1 only. This is the correct pace for foundational work. Layers 2–4 will move faster once Layer 1 is in place.
 - The story reframing (from "supervisor asked me" to "I identified the ownership gap") was the most valuable single outcome of the session. Changes the framing of every behavioral interview where the 17LIVE migration comes up.
-- Correcting Claude's drafts on two overclaims is a critical habit. Every draft I give myself, I verify line by line.
+- Challenging Claude's drafts for overclaims is a critical habit. Every draft Claude produces, I verify line by line.
 - Transcription quality is a real issue for voice-based sessions. "SRE" was transcribed as "SI" and required mid-session correction. For future voice sessions: slow down on technical acronyms and proper nouns.
+
+---
