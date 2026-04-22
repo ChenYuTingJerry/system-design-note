@@ -59,7 +59,7 @@ Order matters: you can't articulate tradeoffs without alternatives, and you can'
 
 ### Constraint 5 — Organizational / SRE dependency
 
-> The SRE team owned the L7 infrastructure layer — service mesh, load balancing, and production networking. This constraint had the most impact because any approach requiring a new service-to-service protocol couldn't be executed unilaterally by the platform team. SRE had their own roadmap and gated new infrastructure adoption behind operational readiness. The way to unlock their support was to deliver a working POC that demonstrated the approach was safe and operationally sound — only then would they commit to supporting gRPC in production.
+> The SRE team owned networking, monitoring, and deployments. Any approach requiring a new service-to-service protocol couldn't be executed unilaterally by the platform team — SRE had their own roadmap and gated new infrastructure adoption behind operational readiness. On top of that, service mesh wasn't something SRE already had in place — I was proposing it as part of the microservices architecture. The way to unlock their support was to deliver a working POC that demonstrated gRPC was safe and operationally sound, and that also gave SRE a clear path to adopt service mesh technology.
 
 **Key insight:** Organizational dependencies are often disguised as technical ones. The real constraint wasn't "we had to use gRPC" — it was "we had to earn SRE's trust with a POC to adopt gRPC." Naming the stakeholder's incentive structure (SRE has their own roadmap and gates adoption behind operational readiness) is Staff-level framing.
 
