@@ -59,9 +59,9 @@ Order matters: you can't articulate tradeoffs without alternatives, and you can'
 
 ### Constraint 5 — Organizational / SRE dependency
 
-> The SRE team owned networking, monitoring, and deployments. Any approach requiring a new service-to-service protocol couldn't be executed unilaterally by the platform team — SRE had their own roadmap and gated new infrastructure adoption behind operational readiness. On top of that, service mesh wasn't something SRE already had in place — I was proposing it as part of the microservices architecture. The way to unlock their support was to deliver a working POC that demonstrated gRPC was safe and operationally sound, and that also gave SRE a clear path to adopt service mesh technology.
+> The SRE team owned networking, monitoring, and deployments. So any approach that needed a new service-to-service protocol couldn't just be done by the platform team alone. SRE had their own roadmap and they controlled what new infrastructure could go into production. And service mesh wasn't something they already had. That was something I was proposing as part of the microservices architecture. So I had to build a working POC that showed two things: first, that gRPC was safe and ready for production, and second, that it gave SRE a clear path to adopt service mesh. That was the unlock. Without the POC, there was no way to move forward.
 
-**Key insight:** Organizational dependencies are often disguised as technical ones. The real constraint wasn't "we had to use gRPC" — it was "we had to earn SRE's trust with a POC to adopt gRPC." Naming the stakeholder's incentive structure (SRE has their own roadmap and gates adoption behind operational readiness) is Staff-level framing.
+**Key insight:** Organizational dependencies are often disguised as technical ones. The real constraint wasn't "we had to use gRPC." It was "we had to earn SRE's trust with a POC to adopt gRPC." The POC also served as the vehicle for introducing service mesh to SRE, which they didn't have before. Naming the stakeholder's incentive structure (SRE has their own roadmap and gates adoption behind operational readiness) is Staff-level framing.
 
 ## Nine Verified Claims About the 17LIVE Work
 
