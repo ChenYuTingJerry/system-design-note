@@ -8,6 +8,10 @@ Topics covered in this section:
 - How to articulate trade-offs clearly
 - Red flags and common pitfalls
 
+## Practice Sessions
+
+- [Practice Sessions](practice-sessions/) — Technical system design practice session summaries, scored and annotated
+
 ## Interactive Simulators
 
 - [Uber Mock Interview](uber-interview-sim.html) — 8-stage timed interview simulator covering requirements, architecture, deep dives (location, consistency, fault tolerance), CDN judgment, and surge pricing. Open in a browser to practice.
