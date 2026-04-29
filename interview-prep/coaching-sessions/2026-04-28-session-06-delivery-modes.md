@@ -2,13 +2,13 @@
 
 **Date:** 2026-04-28
 **Coach:** Claude
-**Duration:** ~60 minutes
+**Duration:** ~90 minutes
 **Focus:** Build Senior+ delivery mode for 17LIVE story, validate both modes (Staff vs Senior+), clarify when to use each mode
 **Status:** Both Staff and Senior+ delivery modes locked. Ready for Symphox story framework in Session 7.
 
 ## Session Context
 
-Week 2, Day 2. Confirmed all three Session 5 Claude Code prompts were committed (session notes, ChatGPT prompt, Claude coach prompt). Started with cold delivery of compressed 4-layer story to validate overnight retention. Then built Senior+ delivery mode.
+Week 2, Day 2. Confirmed all three Session 5 Claude Code prompts were committed (session notes, ChatGPT prompt, Claude coach prompt). Started with cold delivery of compressed 4-layer story to validate overnight retention. Then built Senior+ delivery mode through multiple iterations, including ChatGPT review and comparison. Final Senior+ version locked after iterative refinement.
 
 ## Cold Delivery of Compressed 4-Layer Story (Staff Mode)
 
@@ -20,7 +20,7 @@ Delivered end-to-end. All six sections present:
 - Counterfactual (if 5-10 engineers)
 - Result (hexagonal architecture, gRPC, no regressions)
 
-**Observations:** Ideas flow naturally. Framework internalized. Minor transcription artifacts ("dry PC" instead of "gRPC", "constraints in place" instead of "all five constraints in place") but delivery is clean. No major looping. Ready to move to alternate delivery mode.
+**Observations:** Ideas flow naturally. Framework internalized. Minor transcription artifacts but delivery is clean. No major looping. Ready to move to alternate delivery mode.
 
 ## Staff vs Senior+ Delivery Mode Comparison
 
@@ -40,7 +40,7 @@ Delivered end-to-end. All six sections present:
 ### Senior+ Mode (Technical-Execution Framing)
 
 **Opening:**
-"At 17LIVE, I designed and led a monolith-to-microservices migration using the strangler fig pattern over three years."
+"So at 17LIVE, I led a migration from a monolith to microservices."
 
 **Flow:** Opening → Challenge → Approach → Key technical decisions → Results
 
@@ -55,13 +55,11 @@ Delivered end-to-end. All six sections present:
 **Same story.** Different door in.
 
 - **Staff mode:** "Nobody owned this problem, so I stepped in" (shows initiative + decision framework)
-- **Senior+ mode:** "I designed this migration using strangler fig" (shows technical execution + architecture depth)
+- **Senior+ mode:** "I led this migration" (shows technical execution + architecture depth)
 
-Both use the same facts. The 50K-150K DAU, three engineers, constraints, strangler fig choice — all the same. Only the opening framing changes.
+Both use the same facts. Only the opening framing and emphasis changes.
 
 ## Staff Mode Full Delivery (Locked)
-
-Clean delivery of complete Staff version (B2 level):
 
 "At 17LIVE, I noticed that nobody had really taken ownership of decomposing the monolith into microservices. The architecture was becoming a bottleneck. I believed that as a Staff engineer, it was my responsibility to step in and figure this out. So I did. I scoped the problem, designed a solution, and took it to my supervisor and the VP.
 
@@ -79,71 +77,71 @@ Over three years, we went from zero to production microservices. I designed the 
 
 ## Senior+ Mode Full Delivery (Locked)
 
-Clean delivery of complete Senior+ version (B2 level):
+"So at 17LIVE, I led a migration from a monolith to microservices. It took around three years. The system had around 50K to 150K DAU, across 133 countries. Traffic was pretty spiky, especially during Asia evening hours.
 
-"At 17LIVE, I designed and led a monolith-to-microservices migration using the strangler fig pattern over three years. We had 50K to 150K DAU across 133 countries, with spikes during peak Asia-evening hours. The challenge was moving to microservices without disrupting live traffic or pausing feature releases.
+The main challenge was we couldn't break production, but at the same time, we still had to keep shipping features.
 
-The approach: Extract services one at a time using an API gateway router. Each new service ran in parallel with the monolith. We validated the output matched the legacy system exactly before abandoning old code. This gave us incremental value and the ability to course-correct.
+So instead of doing a big rewrite, which is pretty risky, we went with the Strangler Fig approach. Basically, we extracted services one by one, put them behind an API gateway, and let them run alongside the monolith. And we only removed the old code after we were confident it was stable in production.
 
-I designed the hexagonal architecture pattern for service boundaries. I built a gRPC POC that convinced SRE to adopt service mesh. I established the rule that all new development had to use the new architecture, creating a migration flywheel.
+That helped us keep the risk low, and also we could adjust the design as we learned from real traffic.
 
-Over three years, we went from zero to production microservices. Every new feature was being built on the modern stack. No user-facing regressions during my tenure."
+On the architecture side, I introduced Hexagonal Architecture, mainly to separate business logic from infrastructure. That made the services much easier to maintain and evolve.
 
-**Runtime:** ~2.5 minutes (slightly faster than Staff mode due to skipping constraints section)
+I also built a small gRPC PoC, which later helped the SRE team move toward a service mesh.
+
+Another thing we did was we made it a rule that all new features had to go into the new services. So over time, the system just naturally moved away from the monolith, without needing a separate migration push.
+
+And yeah, after about three years, we had most of the system running on microservices, with no user-facing regressions during the migration."
+
+**Runtime:** ~2 minutes at comfortable speaking pace
+
+## Iteration Notes — How Senior+ Version Was Refined
+
+Multiple iterations were done this session, including a ChatGPT review. Key lessons:
+
+1. **ChatGPT made it too formal.** Words like "large-scale", "thorough validation", "greatly improving" sound written, not spoken. Rejected.
+2. **Natural hesitations are good.** "I think", "around", "pretty spiky", "And yeah" make the answer sound conversational and confident, not scripted.
+3. **Specificity builds credibility.** "133 countries" is better than "more than 100 countries."
+4. **Overclaim corrections applied:**
+   - "zero user-facing regressions" → "no user-facing regressions"
+   - "completed the entire migration" → "had most of the system running on microservices"
+   - "production-ready" → "production"
+   - "large-scale" → removed (50K-150K DAU is not large-scale by FAANG standards)
 
 ## When to Use Each Mode
 
 **Use Staff mode (ownership gap) for:**
-- Behavioral interviews: "Tell me about ownership"
+- "Tell me about a time you took ownership beyond your scope"
 - "Influence without authority" questions
 - Questions about identifying problems proactively
-- Discussions about your Staff-level mindset
+- Staff-level interviews
 
 **Use Senior+ mode (technical execution) for:**
-- System design interviews: "Design a monolith-to-microservices migration"
+- "Tell me about a system you designed"
+- "How would you approach decomposing a monolith?"
 - Architecture interviews
-- Questions about what you built
-- Questions about technical decision-making
-- When the interviewer asks: "Tell me about a system you designed"
+- Senior/Senior+ level interviews
 
 **Key rule:** Don't mix modes in the same answer. Pick one based on the question, then deliver it clean.
 
-## Interview Application Examples
-
-**Question:** "Tell me about a time you took ownership beyond your scope."
-**Answer:** Use Staff mode (ownership gap opening)
-
-**Question:** "How would you approach decomposing a monolith?"
-**Answer:** Use Senior+ mode (technical execution opening)
-
-**Question:** "Describe your most complex project."
-**Answer:** Could use either, but Senior+ is safer (focuses on what you built, not why you stepped in)
-
 ## Open Items for Session 7
 
-1. **Symphox story framework** — influence without authority (CARL structure)
-2. Answer three framing questions:
+1. Symphox story framework — influence without authority (CARL structure)
+2. Answer three framing questions before Session 7:
    - What was the core problem at Symphox?
-   - Who blocked you (had formal authority but wasn't moving)?
-   - How did you win without that authority?
+   - Who had formal authority but wasn't moving?
+   - How did you influence without that authority?
 3. Build Symphox story with Staff + Senior+ modes
-
-## Key Learnings from Session 6
-
-1. **Same story, different framing = two interview modes.** Both Staff and Senior+ modes use identical facts. Only the opening changes. This is the model for Symphox and billing stories.
-
-2. **Ownership framing is Staff-specific.** "Nobody owned this, so I stepped in" is powerful for Staff interviews but sounds defensive in Senior+ interviews where you're expected to have designed systems anyway.
-
-3. **Delivery is solid when you own ideas, not words.** Both Staff and Senior+ modes flowed naturally because you explained ideas in your own words, not reciting memorized sentences.
 
 ## Writing Rules (Confirmed)
 
 - No em dashes
 - B2 conversational English
 - 50K-150K DAU (not 700K)
-- 133 countries across regions (not 7 regions — 133 is the country count)
+- 133 countries (not "more than 100 countries")
 - 15+ years software engineering, 6+ years platform engineering
 - American English throughout
+- No overclaims: "no user-facing regressions" not "zero", "had most of the system running" not "completed the migration"
 
 ## Schedule Update
 
