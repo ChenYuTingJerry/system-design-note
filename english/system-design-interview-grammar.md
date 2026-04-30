@@ -62,7 +62,7 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 
 ## 5. "I would use X because..." justification statements
 
-**Problem:** Stating a tool choice without completing the reason.
+**Problem:** Stating a tool choice without completing the reason. This is also the Staff-level gap — you need to finish the "because" clause.
 
 **Practice these:**
 - "I would use OpenTelemetry because it is vendor-agnostic and fits our open-source budget."
@@ -88,31 +88,36 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 
 ---
 
-# 🆕 7. "I noticed... so I stepped in..." ownership pattern (Staff)
+## 7. "I noticed... so I stepped in..." ownership pattern (Staff)
 
 **Problem:** Sounding passive or waiting for direction.
 
 **Practice these:**
 - "I noticed the monolith was becoming a bottleneck."
-- "There wasn’t a clear owner driving the migration."
+- "There wasn't a clear owner driving the migration."
 - "So I stepped in and scoped the problem."
+- "I noticed each team was doing deployments differently, so I proposed building a centralized platform."
+- "I saw that SRE was spending 40% of their time on manual provisioning, so I initiated the self-service project."
 
 **Pattern:**
 `I noticed that...`
-`There wasn’t really...`
+`There wasn't really...`
 `So I stepped in and...`
 
 ---
 
-# 🆕 8. "There were a few constraints..." framing pattern (Staff)
+## 8. "There were a few constraints..." framing pattern (Staff)
 
 **Problem:** Jumping into solutions without context.
 
 **Practice these:**
 - "There were a few key constraints."
 - "First, we had high traffic and strict availability requirements."
-- "Second, we couldn’t pause feature delivery."
+- "Second, we couldn't pause feature delivery."
 - "Third, the team was very small."
+- "First, we only had a 5-person platform team."
+- "Second, the budget was modest, so we preferred open-source solutions."
+- "Third, we had 15 teams using different tech stacks, so adoption risk was high."
 
 **Pattern:**
 `There were a few key constraints.`
@@ -123,15 +128,18 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 
 ---
 
-# 🆕 9. "Given that... I looked at options..." decision pattern (Staff)
+## 9. "Given that... I looked at options..." decision pattern (Staff)
 
 **Problem:** Not showing decision-making process.
 
 **Practice these:**
 - "Given that, I looked at a few options."
-- "A would be cleaner, but too risky."
-- "B would delay value too much."
+- "Option A would be cleaner, but too risky."
+- "Option B would delay value too much."
 - "So we chose X as the best trade-off."
+- "Given our open-source budget constraint, I compared OpenTelemetry versus Datadog."
+- "Datadog would be easier to manage, but OpenTelemetry is vendor-agnostic and lower cost."
+- "So we chose OpenTelemetry as the better long-term investment."
 
 **Pattern:**
 `Given that...`
@@ -142,7 +150,7 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 
 ---
 
-# 🆕 10. "Basically, we..." explanation pattern (Fluency)
+## 10. "Basically, we..." explanation pattern (Fluency)
 
 **Problem:** Overcomplicated sentences when explaining systems.
 
@@ -150,6 +158,9 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 - "Basically, we extracted services one by one."
 - "We ran them alongside the monolith."
 - "And then we removed the old code."
+- "Basically, we built a web UI where developers fill out a form."
+- "The form triggers a workflow to provision infrastructure."
+- "And then the developer gets their database without talking to SRE."
 
 **Pattern:**
 `Basically, we...`
@@ -158,7 +169,7 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 
 ---
 
-# 🆕 11. "That helped us..." impact pattern
+## 11. "That helped us..." impact pattern
 
 **Problem:** Describing actions without impact.
 
@@ -166,34 +177,47 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 - "That helped us keep the risk low."
 - "It also meant we could adjust the design."
 - "It allowed us to keep delivering features."
+- "That reduced our deployment time from 2 hours to 15 minutes."
+- "It also meant developers could self-serve without waiting for SRE."
+- "That brought our rollback rate down from 15% to under 5%."
 
 **Pattern:**
 `That helped us...`
 `It also meant we could...`
 `It allowed us to...`
+`That reduced/brought... from X to Y.`
 
 ---
 
-# 🆕 12. "We made it a rule..." system thinking pattern
+## 12. "We made it a rule..." system thinking pattern
 
 **Problem:** Not showing long-term mechanisms.
 
 **Practice these:**
 - "We made it a rule that all new features go into the new services."
 - "We enforced a standard deployment process."
+- "We made it a rule that all database migrations must be backward-compatible."
+- "We enforced that every service must use the OpenTelemetry sidecar."
+- "We required teams to test rollback scripts in staging before deploying to prod."
 
 **Pattern:**
 `We made it a rule that...`
+`We enforced that...`
+`We required that...`
 
 ---
 
-# 🆕 13. "If we had... but given..." trade-off depth (Staff)
+## 13. "If we had... but given..." trade-off depth (Staff)
 
 **Problem:** Decisions sound absolute instead of contextual.
 
 **Practice these:**
 - "If we had more engineers, a big-bang rewrite might have worked."
 - "But given our constraints, we chose strangler fig."
+- "If we had unlimited budget, we would just use Datadog for everything."
+- "But given our open-source preference, OpenTelemetry was the better choice."
+- "If we had more time, we could build a custom deployment UI from scratch."
+- "But given the 6-month timeline, we used ArgoCD's built-in UI and added a thin layer on top."
 
 **Pattern:**
 `If we had..., then...`
@@ -201,35 +225,41 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 
 ---
 
-# 🆕 14. "X made the most sense..." soft decision pattern
+## 14. "X made the most sense..." soft decision pattern
 
 **Problem:** Sounding too absolute.
 
 **Practice these:**
 - "Strangler fig made the most sense."
 - "This felt like the best trade-off."
+- "Build-once-deploy-everywhere made the most sense for reducing CI time."
+- "A form-driven provisioning approach felt like the right balance between flexibility and safety."
 
 **Pattern:**
 `X made the most sense.`
 `X felt like the best trade-off.`
+`X felt like the right balance between A and B.`
 
 ---
 
-# 🆕 15. "Looking back..." reflection pattern (Staff signal)
+## 15. "Looking back..." reflection pattern (Staff signal)
 
 **Problem:** Ending answers too abruptly.
 
 **Practice these:**
 - "Looking back, I think the key was aligning with constraints."
 - "Looking back, the decision worked because we prioritized risk."
+- "Looking back, I would have started with the deployment pipeline first and added observability in Phase 2."
+- "Looking back, the biggest lesson was to scope the MVP tighter — we tried to do too much at once."
 
 **Pattern:**
 `Looking back...`
 `I think the key was...`
+`If I did it again, I would...`
 
 ---
 
-# 🆕 16. Natural speaking fillers (Fluency)
+## 16. Natural speaking fillers (Fluency)
 
 **Problem:** Sounding robotic.
 
@@ -238,9 +268,11 @@ Based on Week 2, Session 1 transcription analysis + Senior/Staff speaking patter
 - "Basically..."
 - "And yeah..."
 - "Kind of..."
+- "Right, so..."
+- "The thing is..."
 
 **Pattern:**
-Use naturally between ideas to create pause and flow.
+Use naturally between ideas to create pause and flow. Don't overuse — one per transition is enough.
 
 ---
 
@@ -252,9 +284,14 @@ Keep drilling these every session:
 |------|---------|---------------|
 | Symphox | SIM-fox | Saint Fox / Same Fox |
 | 17LIVE | seventeen live | seventeen life |
-| EKS | E-K-S | EK disasters |
+| EKS | E-K-S | EK disasters / a-gas |
 | tech stack | tech stack | tax stake |
 | depth | depth | death / path |
+| risk model | risk model | race model |
+| I led | I led | I let |
+| build / built | build / built | (watch tense) |
+| come / came | come / came | (watch tense) |
+| just ship | just ship | just strip |
 
 ---
 
