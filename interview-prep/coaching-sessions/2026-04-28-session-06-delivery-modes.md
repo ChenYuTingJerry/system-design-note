@@ -41,7 +41,7 @@ At 17LIVE, I noticed the monolith was becoming a bottleneck, and there wasn't re
 
 There were a few key constraints.
 
-First, we had around 50K to 150K DAU across 133 countries, and traffic was very spiky. So downtime was basically not acceptable.
+First, we had around 50K to 150K DAU on a globally distributed platform. Traffic was very spiky, especially during Asia evening hours. So downtime was basically not acceptable.
 
 Second, we were shipping features every week, especially during seasonal events, so we couldn't pause product development.
 
@@ -79,7 +79,7 @@ Looking back… I think the key was really aligning the solution with the constr
 
 ## Senior+ Mode — Full Delivery (Locked)
 
-So at 17LIVE, I led a migration from a monolith to microservices. It took around three years. The system had around 50K to 150K DAU, across 133 countries. Traffic was pretty spiky, especially during Asia evening hours.
+So at 17LIVE, I led a migration from a monolith to microservices. It took around three years. The system had around 50K to 150K DAU across regional deployments in Asia, US, and international markets. Traffic was pretty spiky, especially during Asia evening hours.
 
 The main challenge was… we couldn't break production, but at the same time, we still had to keep shipping features.
 
@@ -105,7 +105,7 @@ Multiple iterations done this session, including ChatGPT review. Key lessons:
 
 1. **ChatGPT made it too formal.** Words like "large-scale", "thorough validation", "greatly improving" sound written, not spoken. Rejected.
 2. **Natural hesitations are good.** "pretty spiky", "basically", "And yeah" make the answer sound conversational and confident, not scripted.
-3. **Specificity builds credibility.** "133 countries" is better than "more than 100 countries."
+3. **Specificity builds credibility.** "multiple regions" is better than "more than 100 countries."
 4. **Overclaim corrections applied:**
    - "zero user-facing regressions" → "no user-facing regressions"
    - "completed the entire migration" → "most of the system was running on microservices"
@@ -128,7 +128,7 @@ Multiple iterations done this session, including ChatGPT review. Key lessons:
 - No em dashes in written materials (natural speech pauses are fine)
 - B2 conversational English
 - 50K-150K DAU (not 700K)
-- 133 countries (not "more than 100 countries")
+- multiple regions (not "more than 100 countries")
 - 15+ years software engineering, 6+ years platform engineering
 - American English throughout
 - No overclaims: "no user-facing regressions" not "zero", "most of the system" not "completed the migration"

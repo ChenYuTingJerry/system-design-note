@@ -35,7 +35,7 @@ Order matters: you can't articulate tradeoffs without alternatives, and you can'
 
 ### Constraint 1 — User scale and operational load
 
-> We had 700K DAU and 2M MAU on a platform with 50M registered users across 133 countries. This constraint had the most impact during peak Asia-evening windows. Any architectural decision that put whole-system availability at risk during those windows was off the table — an outage during peak would have been a global brand incident across 133 countries.
+> We had 50K to 150K DAU on a globally distributed platform serving multiple regions, with 50M registered users. This constraint had the most impact during peak Asia-evening windows. Any architectural decision that put whole-system availability at risk during those windows was off the table — an outage during peak would have been a global brand incident across all regions we served.
 
 **Key insight from shaping this constraint:** Senior engineers cite the impressive number (50M). Staff engineers cite the operational number that actually constrained architecture (700K DAU), then use the larger number to show reach and stakes. Citing only the impressive number is a credibility risk — interviewers will probe for concurrency and expose the gap.
 
@@ -76,7 +76,7 @@ The nine verified claims that anchor the story:
 5. Hexagonal architecture was my design.
 6. gRPC adoption across the microservices ecosystem was a result of my POC and advocacy.
 7. At the time, I believed taking on this architectural ownership was part of my Staff-engineer responsibility — not something extraordinary.
-8. Over three years, led migration from zero to production microservices running in parallel with the legacy monolith — serving 50M registered users across 133 countries throughout the entire period, with no user-facing regressions during my tenure. Decomposed two legacy components that had high fan-out — each was used by many features, so decoupling produced broad architectural benefit. Established the rule that all new feature development would happen on the new architecture, which stopped the monolith from growing and created a migration flywheel. Migration was still actively decomposing legacy modules when I transitioned out.
+8. Over three years, led migration from zero to production microservices running in parallel with the legacy monolith — serving 50M registered users across multiple regions throughout the entire period, with no user-facing regressions during my tenure. Decomposed two legacy components that had high fan-out — each was used by many features, so decoupling produced broad architectural benefit. Established the rule that all new feature development would happen on the new architecture, which stopped the monolith from growing and created a migration flywheel. Migration was still actively decomposing legacy modules when I transitioned out.
 9. My team was the first to adopt hexagonal architecture in production. I introduced the pattern across all feature teams as the standard design pattern for all new development and migration work. I established the rule that all new feature development org-wide would use the new architecture — so by the time I transitioned out, every new feature across engineering was being built on the hexagonal pattern, even in teams still maintaining legacy monolith code.
 
 ## The Ownership Framing — Staff vs. Senior mental model
