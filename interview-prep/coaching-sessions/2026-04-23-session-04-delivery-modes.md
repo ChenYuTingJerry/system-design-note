@@ -15,7 +15,7 @@ Fresh start after Session 3. Constraints were practiced cold in the morning (bet
 All five constraints delivered from memory, one after another. Transcription noise present (system artifacts, not speech issues).
 
 ### Constraint 1 (User scale and operational load)
-Delivered clean. Numbers correct (700K DAU, 2M MAU, 50M registered, 133 countries). Peak Asia-evening windows named. Availability risk and brand incident consequence clear.
+Delivered clean. Numbers correct (700K DAU, 2M MAU, 50M registered, multiple regions). Peak Asia-evening windows named. Availability risk and brand incident consequence clear.
 
 ### Constraint 2 (Feature velocity)
 Delivered clean. Weekly production releases, seasonal revenue windows, non-recoverability of missed revenue windows articulated clearly.

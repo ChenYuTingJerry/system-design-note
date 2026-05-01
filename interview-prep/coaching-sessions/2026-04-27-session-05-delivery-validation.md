@@ -17,10 +17,10 @@ First session of Week 2. Reviewed resume and LinkedIn About before coaching. Fix
 
 Jerry confirmed that 700K DAU was outdated data from 2015, not reflective of the period when he was at 17LIVE (2021-2024). The correct range is 50K to 150K DAU.
 
-**Impact on story:** The core constraint (peak availability risk) remains valid. The scale narrative changes slightly. 50M registered users across 133 countries is still accurate. DAU spikes to the upper range (150K) during peak Asia-evening hours.
+**Impact on story:** The core constraint (peak availability risk) remains valid. The scale narrative changes slightly. 50M registered users across multiple regions is still accurate. DAU spikes to the upper range (150K) during peak Asia-evening hours.
 
 **Updated Constraint 1:**
-"We had 50K to 150K DAU across 133 countries. During peak Asia-evening hours, DAU could spike to the upper range. Any risk to availability during those peak hours was off the table."
+"We had 50K to 150K DAU on a globally distributed platform serving multiple regions. During peak Asia-evening hours, DAU could spike to the upper range. Any risk to availability during those peak hours was off the table."
 
 **Action required:** Update all previous session notes, resume references, and LinkedIn to reflect 50K-150K DAU if DAU is mentioned. Resume currently says "50M+ registered users" without mentioning DAU, which is still accurate.
 
