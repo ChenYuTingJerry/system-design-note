@@ -30,6 +30,34 @@ Reason: 5 Staff cold applications rejected (Uber x2, Databricks, JetBrains, Nebi
 - **Senior+ mode:** Took over struggling team, delivered on schedule, zero attrition.
 - **Status:** Not yet scripted.
 
+## Coding Prep Plan
+
+**Language:** Python (primary)
+**Topic bank:** NeetCode 150 ([neetcode.io](http://neetcode.io))
+**Daily target:** 1 Medium per day
+**Benchmark:** Medium stable in 45 minutes
+
+### Weekly Progression
+
+| Week | NeetCode Patterns | Goal |
+|------|-------------------|------|
+| 3–4 | Arrays & Hashing, Two Pointers, Sliding Window, Stack | Pattern recognition + explain reasoning |
+| 5–6 | Binary Search, Linked List, Trees, Heap / Priority Queue | Stable Medium in 30 min |
+| 7–8 | Graphs, DP (1D only) | 45-min timed mock with English narration |
+
+### Daily Practice Rule
+
+After every problem, answer these three questions:
+1. What pattern is this?
+2. What is the time / space complexity?
+3. If the interviewer asks for a better solution — what do I say?
+
+### Week 7–8 Mock Format
+
+- 45-minute timer, one problem
+- Narrate reasoning in English throughout
+- After solving: explain time/space complexity out loud
+
 ## Fluency Drills (daily practice, integrated into every session)
 
 ### Drill 1: Own the ideas, not the words
@@ -75,6 +103,7 @@ Speak slower than feels natural. Slower speech gives your brain time to find the
 - Practice delivering system design answers using the decision framework (Constraints → Alternatives → Tradeoffs)
 - First paid mock interview (Senior+ level recommended since 70% of applications)
 - Daily fluency drills continue
+- Coding: Start NeetCode 150 — Arrays & Hashing first. 1 Medium/day. After each problem: name the pattern, state complexity, prepare follow-up answer.
 
 ### Week 4 (May 11-17) — Role-Type Prep: SRE + Infrastructure
 
@@ -87,6 +116,7 @@ Speak slower than feels natural. Slower speech gives your brain time to find the
 - Reframe 17LIVE and Symphox stories for SRE interviews (operational constraints, production safety, reliability)
 - MongoDB Dublin SRE prep if application is active (Deployments 75% fit, SLS 70%, Observability 65%)
 - Daily fluency drills continue
+- Coding: Continue NeetCode 150 — Two Pointers, Sliding Window, Stack. 1 Medium/day.
 
 ### Week 5 (May 18-24) — Mock Interviews + Feedback
 
@@ -95,6 +125,7 @@ Speak slower than feels natural. Slower speech gives your brain time to find the
 - Practice "probe resistance": answering follow-up questions without overclaiming or backpedaling
 - Company-specific research for any active interview pipelines (1-2 hours per company, only when interview is scheduled)
 - Daily fluency drills continue
+- Coding: Binary Search, Linked List (NeetCode 150). 1 Medium/day.
 
 ### Week 6 (May 25-31) — System Design Deep Practice
 
@@ -103,6 +134,7 @@ Speak slower than feels natural. Slower speech gives your brain time to find the
 - Practice leading with constraints before jumping to solutions (Session 1 diagnostic gap)
 - Refine Senior+ vs Staff delivery for system design answers
 - Daily fluency drills continue
+- Coding: Trees, Heap / Priority Queue (NeetCode 150). 1 Medium/day.
 
 ### Week 7 (Jun 1-7) — Behavioral Deep Practice + Salary
 
@@ -114,6 +146,7 @@ Speak slower than feels natural. Slower speech gives your brain time to find the
 - Practice "what's your expected compensation" redirects
 - Refine stories based on all feedback received
 - Daily fluency drills continue
+- Coding: Graphs + timed mock sessions begin (45 min, English narration throughout).
 
 ### Week 8 (Jun 8-14) — Final Polish + Active Interview Support
 
@@ -122,6 +155,7 @@ Speak slower than feels natural. Slower speech gives your brain time to find the
 - Review all three stories one final time: deliver cold, clean, one take each
 - Confidence building: full 4-layer 17LIVE story in under 3 minutes
 - All common questions delivered cleanly without notes
+- Coding: DP (1D only), continue timed mocks.
 
 ## Decision Framework (internalized)
 
@@ -150,3 +184,11 @@ Decision framework (thinking structure) is not the same as delivery framework (c
 - **Two delivery modes per story.** Staff mode (influence, ownership) and Senior+ mode (execution, technical depth). Same facts, different emphasis.
 - **Role-type prep over company-specific prep.** Research specific companies only when interview is scheduled.
 - **Fluency comes from owning ideas, not memorizing words.** Stop-and-restart technique for looping. Practice when fresh. Slow down.
+- **Coding:** Explain the pattern and complexity out loud, not just solve the problem.
+
+## Success Metrics
+
+### Coding milestones
+- End of Week 4: Arrays, Two Pointers, Sliding Window, Stack patterns solid. Can explain approach in English.
+- End of Week 6: Medium problems stable in 30 minutes. Complexity analysis automatic.
+- End of Week 8: 45-minute timed mock format comfortable. English narration fluent.
