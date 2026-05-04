@@ -292,6 +292,64 @@ Keep drilling these every session:
 | build / built | build / built | (watch tense) |
 | come / came | come / came | (watch tense) |
 | just ship | just ship | just strip |
+| billing | billing | bidding / bathing |
+| owned | owned (past tense) | own |
+| stayed | stayed | were stayed |
+| built | built | build |
+| kept | kept | keep |
+| worked | worked | work |
+
+---
+
+## 18. Past tense consistency in storytelling
+
+**Problem:** Slipping into present tense mid-story when telling a CARL
+story. Once you start a past-tense story, every verb must stay past tense.
+
+**Common slip pairs — drill these:**
+- own → **owned** ("nobody owned specific features")
+- build → **built** ("this built shared understanding")
+- keep → **kept** ("kept the team moving")
+- work → **worked** ("redesigned how we worked")
+- stay → **stayed** ("all four engineers stayed")
+
+**Wrong:** "I noticed nobody own specific features and we have no process."
+**Right:** "I noticed nobody owned specific features and we had no process."
+
+**Pattern:** `I noticed / I saw / I found + [past tense verb] + object`
+
+---
+
+## 19. "Aligned on" — fixed preposition
+
+**Problem:** Missing the preposition "on" after "aligned."
+
+**Practice these:**
+- "We weren't aligned **on** the goal."
+- "Everyone was aligned **on** the approach."
+- "The team wasn't aligned **on** priorities."
+
+**Wrong:** "we weren't aligned the goal"
+**Right:** "we weren't aligned **on** the goal"
+
+**Pattern:** `aligned on + noun` (always "on", never omit it)
+
+---
+
+## 20. "All four engineers stayed" — no "were"
+
+**Problem:** Adding "were" before intransitive verbs in past tense.
+
+**Practice these:**
+- "All four engineers **stayed**." (not "were stayed")
+- "The team **delivered** on time." (not "was delivered")
+- "Everyone **understood** the scope." (not "was understood")
+
+**Rule:** "Stay", "deliver", "leave", "ship" are action verbs.
+They don't need "were." Only passive constructions use "were."
+
+**Wrong:** "all four engineers were stayed"
+**Right:** "all four engineers stayed"
 
 ---
 
